@@ -22,9 +22,20 @@ class ChatsController extends Controller
     public function fetchMessages()
     {
         // return Message::all();
-        return Message::with('user')->get();
+        $user = Auth::user();
+        if ($user->id == 1){
+            return Message::with('user')->get();
+        } else {
+            return Message::with('user')
+                ->where('user_id', $user->id)
+                // ->orWhere('to_user', $user->id)
+                ->get();
+        }
+
+        
     }
 
+    // selected user
     public function sendMessage(Request $request)
     {
         $user = Auth::user();
