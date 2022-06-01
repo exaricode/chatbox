@@ -20,6 +20,7 @@ window.Vue = require('vue').default;
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+
 Vue.component('chat-messages', require('./components/ChatMessages.vue').default);
 Vue.component('chat-form', require('./components/ChatForm.vue').default);
 
@@ -47,9 +48,9 @@ const app = new Vue({
     },
     methods: {
         fetchMessages() {
-            //GET request to the messages route in our Laravel server to fetch all the messages
+            // GET request to the messages route in our Laravel server to fetch all the messages
             axios.get('/messages').then(response => {
-                //Save the response in the messages array to display on the chat view
+                // Save the response in the messages array to display on the chat view
                 this.messages = response.data;
             });
         },

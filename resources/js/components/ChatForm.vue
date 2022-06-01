@@ -1,7 +1,7 @@
 <template>
-  //Display an input field and a send button.
+ <!-- Display an input field and a send button. -->
   <div class="input-group">
-    //Input field.
+    <!-- Input field. -->
     <input
       id="btn-input"
       type="text"
@@ -11,9 +11,9 @@
       v-model="newMessage"
       @keyup.enter="sendMessage"
     />
-    //Button
+    <!-- Button -->
     <span class="input-group-btn">
-      //Call sendMessage() this button is clicked.
+      <!-- Call sendMessage() this button is clicked. -->
       <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">
         Send
       </button>

@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $connection = 'mysql';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -43,6 +45,6 @@ class User extends Authenticatable
     ];
 
     public function messages() {
-        return $this->hasMany(Message::classs);
+        return $this->hasMany(Message::class);
     }
 }

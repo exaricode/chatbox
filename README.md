@@ -39,10 +39,12 @@ Change Broadcast_driver in the project root's **.env** file
 > BROADCAST_DRIVER=pusher
 
 Scroll down to Pusher environment variables and fill in the values
-> PUSHER_APP_ID=123456
+```
+PUSHER_APP_ID=123456
 PUSHER_APP_KEY=192b754680b23ce923d6
 PUSHER_APP_SECRET=a64521345r457641sb65pw
 PUSHER_APP_CLUSTER=mt1
+```
 
 #### Install the channels SDK
 > composer require pusher/pusher-php-server
@@ -78,17 +80,21 @@ php artisan serve
 
 In ".env" file comment out:
 
-> DB_CONNECTION=mysql
+```
+DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=laravel
 DB_USERNAME=root
 DB_PASSWORD=
+```
 
 And add:
 
-> DB_CONNECTION=sqlite
+```
+DB_CONNECTION=sqlite
  DB_DATABASE=/Full/path/to/db.sqlite
+```
 
 #### The message model
 
@@ -340,7 +346,7 @@ const app = new Vue({
 ```
 
 In `resources/views/home.blade.php` below `{{__('You are logged in!') }}` add:
-> `<a href="{{ url('/chat') }}">Chat</a">`
+> `<a href="{{ url('/chat') }}">Chat</a>`
 
 Check if app works
 

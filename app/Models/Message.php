@@ -9,7 +9,10 @@ class Message extends Model
 {
     use HasFactory;
 
+    protected $connection = 'sqlite';
+    
     protected $fillable = ['message'];
+    public $timestamps = false;
 
     public function user(){
         return $this->belongsTo(User::class);
