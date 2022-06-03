@@ -20,7 +20,7 @@
 
 you will need PHP 8, Composer 2 and Node.js 
 
-#### Create the project
+### Create the project
 
 > composer create-project laravel/laravel chatbox
 
@@ -30,7 +30,7 @@ you will need PHP 8, Composer 2 and Node.js
 
 > go to http://127.0.0.1:8000/ with browser
 
-#### Set up Pusher
+### Set up Pusher
 
 Register the broadcast application service in **config/app.php** by uncommenting
 > // App\Providers\BroadcastServiceProvider::class
@@ -46,10 +46,10 @@ PUSHER_APP_SECRET=a64521345r457641sb65pw
 PUSHER_APP_CLUSTER=mt1
 ```
 
-#### Install the channels SDK
+### Install the channels SDK
 > composer require pusher/pusher-php-server
 
-#### Install front-end dependecies
+### Install front-end dependecies
 > npm install --save laravel-echo pusher-js
 
 Uncomment these statements at the bottom of **resources/js/bootstrap.js**
@@ -68,13 +68,16 @@ window.Echo = new Echo({
 Add the login system
 
 > composer require laravel/ui
-php artisan ui vue --auth
-npm install && npm run dev
-php artisan serve
+
+> php artisan ui vue --auth
+
+> npm install && npm run dev
+
+> php artisan serve
 
 > go to http://127.0.0.1:8000/ with browser
 
-#### Create the database sqlite
+### Create the database sqlite
 
 > touch database/db.sqlite
 
@@ -96,11 +99,18 @@ DB_CONNECTION=sqlite
  DB_DATABASE=/Full/path/to/db.sqlite
 ```
 
-#### The message model
+or to use next to **MySQL**
+
+``` 
+DB_CONNECTION_SECOND=sqlite
+DB_DATABASE_SECOND=/Full/path/to/db.sqlite
+```
+
+### The message model
 
 Create a **Message** model with migration
 
-- php artisan make:model Message
+> php artisan make:model Message
 
 Add the **$fillable** atrribute in **app/Models/Message.php**
 
@@ -112,6 +122,9 @@ class Message extends Model
     protected $fillable = ['message']; 
 }
 ```
+
+If using **MySQL** and **sqlite** add: 
+> `protected $connection = 'sqlite';`
 
 Add **user_id** and **message** columns to Message migration file
 
@@ -137,7 +150,7 @@ run:
 
 > sudo apt install php8.0-sqlite3
 
-#### User to Message relationship
+### User to Message relationship
 
 In `app/Models/User.php` add the hasMany relation: 
 
@@ -155,7 +168,7 @@ public function user() {
 }
 ```
 
-#### Defining routes
+### Defining routes
 
 Add the following routes to `routes/web.php`:
 
@@ -165,15 +178,15 @@ Route::get('/messages', [App\Http\Controllers\ChatsController::class, 'fetchMess
 Route::post('/messages', [App\Http\Controllers\ChatsController::class, 'sendMessage']);
 ```
 
-#### Create ChatsController
+### Create ChatsController
 
 > php artisan make:controller ChatsController
 
 At the top of `app/Http/Controllers/ChatsController.php` add:
 
-> use App\Models\Message;
+> `use App\Models\Message;`
 
-> use Illuminate\Support\Facades\Auth;
+> `use Illuminate\Support\Facades\Auth;`
 
 And add the following functions:
 
@@ -207,7 +220,7 @@ class ChatsController extends Controller
 }
 ```
 
-#### Creating the chat app view
+### Creating the chat app view
 
 Create a new file `resources/views/chat.blade.php` and add:
 
@@ -306,9 +319,9 @@ export default {
 
 Open `resources/js/app.js` and add the following two components after the example-component Vue:
 
-> Vue.component('chat-messages', require('./components/ChatMessages.vue').default);
+> `Vue.component('chat-messages', require('./components/ChatMessages.vue').default);`
 
-> Vue.component('chat-form', require('./components/ChatForm.vue').default);
+> `Vue.component('chat-form', require('./components/ChatForm.vue').default);`
 
 At the bottom inside `const app = new Vue({` :
 
@@ -358,7 +371,7 @@ Check if app works
 
 Register a second user and open another (private) window
 
-#### Broadcasting Message Sent Event
+### Broadcasting Message Sent Event
 
 create an event called MessageSent:
 
@@ -366,17 +379,19 @@ create an event called MessageSent:
 
 open the file `app/Events/MessageSent.php` and import:
 
-> use App\Models\User;
-> use App\Models\Message;
+> `use App\Models\User;`
+
+> `use App\Models\Message;`
 
 Add the implements ShouldBroadcast interface to the MessageSent class:
 
-> class MessageSent implements ShouldBroadcast
+> `class MessageSent implements ShouldBroadcast`
 
 Inside the class, add these two public properties:
 
-> public $user;
-> public $message;
+> `public $user;`
+
+> `public $message;`
 
 There is already an empty `__construct()` function, modify it to the following:
 
@@ -412,7 +427,7 @@ before the `return` statement at the bottom of the `sendMessage()` function, add
 
 > broadcast(new MessageSent($user, $message))->toOthers();
 
-#### Laravel Echo
+### Laravel Echo
 
  Add this in `resources/js/app.js` inside `created(){…}` after `this.fetchMessages()`:
 
