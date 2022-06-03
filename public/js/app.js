@@ -5517,6 +5517,7 @@ Vue.component('chat-form', (__webpack_require__(/*! ./components/ChatForm.vue */
 
 var app = new Vue({
   el: '#app',
+  //Store chat messages for display in this array.
   data: {
     messages: []
   },
@@ -5536,15 +5537,17 @@ var app = new Vue({
     fetchMessages: function fetchMessages() {
       var _this2 = this;
 
-      // GET request to the messages route in our Laravel server to fetch all the messages
+      console.group('fetch'); //GET request to the messages route in our Laravel server to fetch all the messages
+
       axios.get('/messages').then(function (response) {
-        // Save the response in the messages array to display on the chat view
+        //Save the response in the messages array to display on the chat view
         _this2.messages = response.data;
       });
     },
     //Receives the message that was emitted from the ChatForm Vue component
     addMessage: function addMessage(message) {
-      //Pushes it to the messages array
+      console.log('add'); //Pushes it to the messages array
+
       this.messages.push(message); //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
 
       axios.post('/messages', message).then(function (response) {
