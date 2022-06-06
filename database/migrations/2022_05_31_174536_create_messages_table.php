@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('user_id')->unsigned();
             $table->text('message');
-            // $table->integer('to_user')->unsigned();
+            $table->integer('to_user')->unsigned();
         });
     }
 

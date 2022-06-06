@@ -1,23 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
 
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
+<div class="h-screen w-full">
+    @if (session('status'))
+        <div role="alert">
+            {{ session('status') }}
+        </div>
+    @endif
 
-                    {{ __('You are logged in!') }}
-                    <a href="{{ url('/chat') }}">Chat</a>
-                </div>
-            </div>
+    {{ __('You are logged in!') }}
+    <div class="fixed bottom-4 right-4">
+        
+        <div v-if="!openChatBtn">
+            <x-chat></x-chat>
+        </div>
+        <div v-else>
+            <button class="w-full py-2 px-4
+                    border-2 border-black border-solid rounded" 
+                v-on:click="openChat">chat</button>
         </div>
     </div>
 </div>

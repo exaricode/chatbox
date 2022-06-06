@@ -4,6 +4,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+const { default: axios } = require('axios');
+
 require('./bootstrap');
 
 window.Vue = require('vue').default;
@@ -34,7 +36,8 @@ Vue.component('chat-form', require('./components/ChatForm.vue').default);
     el: '#app',
     //Store chat messages for display in this array.
     data: {
-        messages: []
+        messages: [],
+        openChatBtn: false
     },
     //Upon initialisation, run fetchMessages(). 
     created() {
@@ -65,6 +68,10 @@ Vue.component('chat-form', require('./components/ChatForm.vue').default);
             axios.post('/messages', message).then(response => {
                 console.log(response.data);
             });
+        },
+        openChat(){
+            this.openChatBtn = !this.openChatBtn;
+            // axios.get('/chat')
         }
     }
 });

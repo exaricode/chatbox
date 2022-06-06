@@ -1,18 +1,18 @@
 <template>
  <!-- Display an input field and a send button. -->
-  <div class="input-group">
+  <div class="">
     <!-- Input field. -->
     <input
       id="btn-input"
       type="text"
       name="message"
-      class="form-control input-sm"
+      class=""
       placeholder="Type your message here..."
       v-model="newMessage"
       @keyup.enter="sendMessage"
     />
     <!-- Button -->
-    <span class="input-group-btn">
+    <span class="">
       <!-- Call sendMessage() this button is clicked. -->
       <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">
         Send

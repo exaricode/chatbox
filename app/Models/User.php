@@ -47,4 +47,15 @@ class User extends Authenticatable
     public function messages() {
         return $this->hasMany(Message::class);
     }
+
+    public function getUsers() {
+        $allUsers = new stdClass();
+        $medient = User::where('is_admin', false)->get();
+        $begeleiding = User::where('is_admin', true)->get();
+        $allUsers->medient= $medient;
+        $allUsers->begeleiding= $begeleiding;
+        
+        return $allUsers;
+
+    }
 }

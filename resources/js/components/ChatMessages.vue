@@ -1,8 +1,8 @@
 <template>
   <ul class="chat">
-    <li class="left clearfix" v-for="message in messages" :key="message.id">
-      <div class="clearfix">
-        <div class="header">
+    <li class="" v-for="message in messages" :key="message.id">
+      <div class="">
+        <div class="">
           <strong>
             {{ message.user.name }}
           </strong>

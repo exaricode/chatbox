@@ -5493,6 +5493,9 @@ __webpack_require__.r(__webpack_exports__);
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
+var _require = __webpack_require__(/*! axios */ "./node_modules/axios/index.js"),
+    axios = _require["default"];
+
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]);
@@ -5519,7 +5522,8 @@ var app = new Vue({
   el: '#app',
   //Store chat messages for display in this array.
   data: {
-    messages: []
+    messages: [],
+    openChatBtn: false
   },
   //Upon initialisation, run fetchMessages(). 
   created: function created() {
@@ -5553,6 +5557,9 @@ var app = new Vue({
       axios.post('/messages', message).then(function (response) {
         console.log(response.data);
       });
+    },
+    openChat: function openChat() {
+      this.openChatBtn = !this.openChatBtn; // axios.get('/chat')
     }
   }
 });
@@ -29444,6 +29451,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app.css":
+/*!*******************************!*\
+  !*** ./resources/css/app.css ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -34682,7 +34702,7 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "input-group" }, [
+  return _c("div", {}, [
     _c("input", {
       directives: [
         {
@@ -34692,7 +34712,6 @@ var render = function () {
           expression: "newMessage",
         },
       ],
-      staticClass: "form-control input-sm",
       attrs: {
         id: "btn-input",
         type: "text",
@@ -34719,7 +34738,7 @@ var render = function () {
       },
     }),
     _vm._v(" "),
-    _c("span", { staticClass: "input-group-btn" }, [
+    _c("span", {}, [
       _c(
         "button",
         {
@@ -34759,9 +34778,9 @@ var render = function () {
     "ul",
     { staticClass: "chat" },
     _vm._l(_vm.messages, function (message) {
-      return _c("li", { key: message.id, staticClass: "left clearfix" }, [
-        _c("div", { staticClass: "clearfix" }, [
-          _c("div", { staticClass: "header" }, [
+      return _c("li", { key: message.id }, [
+        _c("div", {}, [
+          _c("div", {}, [
             _c("strong", [
               _vm._v("\n          " + _vm._s(message.user.name) + "\n        "),
             ]),
@@ -47162,7 +47181,8 @@ Vue.compile = compileToFunctions;
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
 /******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
