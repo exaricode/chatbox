@@ -8,8 +8,6 @@ const { default: axios } = require('axios');
 
 require('./bootstrap');
 
-window.Vue = require('vue').default;
-
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -21,57 +19,53 @@ window.Vue = require('vue').default;
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+const openChatBtn = document.getElementById('openChatBtn');
+const chatWindow = document.getElementById('chatWindow');
 
-Vue.component('chat-messages', require('./components/ChatMessages.vue').default);
-Vue.component('chat-form', require('./components/ChatForm.vue').default);
+let messages = [];
+let openChat = false;
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
- const app = new Vue({
-    el: '#app',
-    //Store chat messages for display in this array.
-    data: {
-        messages: [],
-        openChatBtn: false
-    },
-    //Upon initialisation, run fetchMessages(). 
-    created() {
-        this.fetchMessages();
-        window.Echo.private('chat')
-            .listen('MessageSent', (e) => {
-                this.messages.push({
-                    message: e.message.message,
-                    user: e.user
-                });
-            });
-    },
-    methods: {
-        fetchMessages() {
-            console.group('fetch');
-            //GET request to the messages route in our Laravel server to fetch all the messages
-            axios.get('/messages').then(response => {
-                //Save the response in the messages array to display on the chat view
-                this.messages = response.data;
-            });
-        },
-        //Receives the message that was emitted from the ChatForm Vue component
-        addMessage(message) {
-            console.log('add');
-            //Pushes it to the messages array
-            this.messages.push(message);
-            //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
-            axios.post('/messages', message).then(response => {
-                console.log(response.data);
-            });
-        },
-        openChat(){
-            this.openChatBtn = !this.openChatBtn;
-            // axios.get('/chat')
-        }
-    }
+openChatBtn.addEventListener('click', () => {
+    openChat = true;
+    // chatWindow.classList.toggle = 'hidden';
+    chatWindow.className = 'static';
+    fetchMessages();
 });
+/* 
+function openChatWindow() {
+    openChat = !openChat;
+    // return openChat;
+} */
+
+window.addEventListener('load', () => {
+    chatWindow.className = 'none';
+    fetchMessages();
+    window.Echo.private('chat')
+        .listen('MessageSent', (e) => {
+            messages.push({
+                message: e.message.message,
+                user: e.user
+            });
+        })
+})
+
+function fetchMessages() {
+    console.group('fetch');
+    //GET request to the messages route in our Laravel server to fetch all the messages
+    axios.get('/messages').then(response => {
+        //Save the response in the messages array to display on the chat view
+        messages = response.data;
+    });
+}
+
+//Receives the message that was emitted from the ChatForm Vue component
+function addMessage(message) {
+    console.log('add');
+    //Pushes it to the messages array
+    messages.push(message);
+    //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
+    axios.post('/messages', message).then(response => {
+        console.log(response.data);
+    });
+}
+

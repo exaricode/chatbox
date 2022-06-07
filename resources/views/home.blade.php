@@ -12,14 +12,22 @@
     {{ __('You are logged in!') }}
     <div class="fixed bottom-4 right-4">
         
-        <div v-if="!openChatBtn">
-            <x-chat></x-chat>
-        </div>
-        <div v-else>
+        <div>
             <button class="w-full py-2 px-4
                     border-2 border-black border-solid rounded" 
-                v-on:click="openChat">chat</button>
+                id="openChatBtn">chat</button>
         </div>
+       
+        
+        <div id="chatWindow" >
+            <x-chat :messages="$messages"></x-chat>
+        </div>
+        
     </div>
 </div>
 @endsection
+
+
+@push('main')    
+<script src="{{asset('js/chats.js')}}" defer></script>
+@endpush

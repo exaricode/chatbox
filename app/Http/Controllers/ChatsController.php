@@ -20,7 +20,7 @@ class ChatsController extends Controller
         return view('chat');
     }
 
-    public function fetchMessages()
+    public static function fetchMessages()
     {
         $user = Auth::user();
         
@@ -39,7 +39,7 @@ class ChatsController extends Controller
     }
 
     // selected user
-    public function sendMessage(Request $request)
+    public static function sendMessage(Request $request)
     {
         $user = Auth::user();
         $message = $user->messages()->create([
