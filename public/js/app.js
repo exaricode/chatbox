@@ -2162,72 +2162,10 @@ module.exports = {
   \*****************************/
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
 var _require = __webpack_require__(/*! axios */ "./node_modules/axios/index.js"),
     axios = _require["default"];
 
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
-
-var openChatBtn = document.getElementById('openChatBtn');
-var chatWindow = document.getElementById('chatWindow');
-var messages = [];
-var openChat = false;
-openChatBtn.addEventListener('click', function () {
-  openChat = true; // chatWindow.classList.toggle = 'hidden';
-
-  chatWindow.className = 'static';
-  fetchMessages();
-});
-/* 
-function openChatWindow() {
-    openChat = !openChat;
-    // return openChat;
-} */
-
-window.addEventListener('load', function () {
-  chatWindow.className = 'none';
-  fetchMessages();
-  window.Echo["private"]('chat').listen('MessageSent', function (e) {
-    messages.push({
-      message: e.message.message,
-      user: e.user
-    });
-  });
-});
-
-function fetchMessages() {
-  console.group('fetch'); //GET request to the messages route in our Laravel server to fetch all the messages
-
-  axios.get('/messages').then(function (response) {
-    //Save the response in the messages array to display on the chat view
-    messages = response.data;
-  });
-} //Receives the message that was emitted from the ChatForm Vue component
-
-
-function addMessage(message) {
-  console.log('add'); //Pushes it to the messages array
-
-  messages.push(message); //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
-
-  axios.post('/messages', message).then(function (response) {
-    console.log(response.data);
-  });
-}
 
 /***/ }),
 
@@ -21097,6 +21035,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/chatBox.css":
+/*!***********************************!*\
+  !*** ./resources/css/chatBox.css ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -26226,7 +26177,8 @@ runtime.setup(pusher_Pusher);
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
+/******/ 			"css/app": 0,
+/******/ 			"css/chatBox": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -26276,9 +26228,10 @@ runtime.setup(pusher_Pusher);
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/css/chatBox.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

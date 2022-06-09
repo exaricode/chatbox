@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChannelCreated;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSent;
+use Illuminate\Support\Facades\Broadcast;
 
 class ChatsController extends Controller
 {
@@ -49,8 +52,27 @@ class ChatsController extends Controller
         return ['status' => 'Message Sent!'];
     }
 
-    public function getUsers(){
+    public static function getChannels() {
+        if(!Auth::user()->is_admin){
+            $channels = [];
+            $channelNames = [];
 
-        return User::getUsers();
+            $begeleiding = ChatsController::getUsers();
+            
+            foreach ($begeleiding as $b){
+                $channelName = new PrivateChannel(Auth::user()->username . '-' . $b->username);
+                // dd($channelName);
+                array_push($channels, broadcast(new ChannelCreated($channelName))->toOthers());
+                
+                array_push($channelNames, $channelName);
+            }
+            // dd($channelNames);
+            return $channelNames;
+        }
+    }
+
+    public static function getUsers(){
+
+        return User::getAdminUsers();
     }
 }

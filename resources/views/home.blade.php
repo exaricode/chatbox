@@ -13,14 +13,13 @@
     <div class="fixed bottom-4 right-4">
         
         <div>
-            <button class="w-full py-2 px-4
-                    border-2 border-black border-solid rounded" 
+            <button class="chatBtn" 
                 id="openChatBtn">chat</button>
         </div>
        
-        
         <div id="chatWindow" >
-            <x-chat :messages="$messages"></x-chat>
+            <x-chat-channels></x-chat-channels>
+            <x-chat></x-chat>
         </div>
         
     </div>
@@ -29,5 +28,5 @@
 
 
 @push('main')    
-<script src="{{asset('js/chats.js')}}" defer></script>
+<script src="{{asset('js/chats.js')}}"></script>
 @endpush

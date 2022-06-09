@@ -1,9 +1,9 @@
-<template>
+
     <!-- Display an input field and a send button. -->
      <div class="">
        <!-- Input field. -->
        <input
-         id="btn-input"
+         id="sendMessageInp"
          type="text"
          name="message"
          class=""
@@ -19,7 +19,21 @@
          </button>
        </span>
      </div>
-   </template>
+
+{{-- @push('main') --}}
+<script>
+  /* const sendMessageBtn = document.getElementById('sendMessageBtn');
+  const sendMessageInp = document.getElementById('sendMessageInp');
+
+  sendMessageInp.addEventListener('keyup', (e) => {
+    sendMessage();
+  })
+
+  sendMessageBtn.addEventListener('click', () => {
+    sendMessage();
+  }) */
+</script> 
+  {{-- @endpush --}}
 
    
    

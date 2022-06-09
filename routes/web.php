@@ -24,8 +24,6 @@ Auth::routes();
 
 Route::get('/home', function () {
     return view('home', [
-        'openChat' => false,
-        // 'home' => HomeController::index(),
         'messages' => ChatsController::fetchMessages()
     ]);
      // HomeController::class, 'index']->name('home')
@@ -34,4 +32,5 @@ Route::get('/home', function () {
 
 // Route::get('/chat', [ChatsController::class, 'index']);
 Route::get('/messages', [ChatsController::class, 'fetchMessages']);
+Route::get('/channels', [ChatsController::class, 'getChannels']);
 Route::post('/messages', [ChatsController::class, 'sendMessage']);

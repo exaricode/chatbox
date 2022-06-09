@@ -16,33 +16,45 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        \App\Models\User::factory()->create([
-             'name' => 'admin',
-             'username' => 'admin',
-             'email' => 'admin@admin.com',
-             'password' => bcrypt('password'),
-             'is_admin' => true,
-             'is_logged_in' => false,
-         ]);
+        $admins = ['admin1', 'admin2', 'admin3', 'admin4', 'admin5'];
+        $testers = ['tester1', 'tester2', 'tester3', 'tester4', 'tester5'];
 
-         \App\Models\User::factory()->create([
-            'name' => 'tester1',
-            'username' => 'tester123',
-            'email' => 'tester1@test.com',
-            'password' => bcrypt('password'),
-            'is_admin' => false,
-            'is_logged_in' => false
-         ]);
+        foreach ($admins as $a) {
+            $id = 1;
+            $count = 6;
+            \App\Models\User::factory()->create([
+                'name' => $a,
+                'username' => $a,
+                'email' => $a . '@admin.com',
+                'password' => bcrypt('password'),
+                'is_admin' => true,
+                'is_logged_in' => false
+            ]);
 
-         \App\Models\User::factory()->create([
-            'name' => 'tester2',
-            'username' => '2tester',
-            'email' => 'tester2@test.com',
-            'password' => bcrypt('password'),
-            'is_admin' => false,
-            'is_logged_in' => false
-         ]);
+            foreach($testers as $t) {
+                
+                \App\Models\Message::create([
+                    'user_id' => $id,
+                    'message' => 'hello ' . $t,
+                    'to_user_id' => $count
+                ]);
+                $count++;
+                $id++;
+            }
 
+        }
+
+        foreach ($testers as $t) {
+            \App\Models\User::factory()->create([
+                'name' => $t,
+                'username' => $t,
+                'email' => $t . '@tester.com',
+                'password' => bcrypt('password'),
+                'is_admin' => false,
+                'is_logged_in' => false
+            ]);
+        }
+/* 
          \App\Models\Message::create([
              'user_id' => 1,
              'message' => 'hello tester1',
@@ -63,6 +75,6 @@ class DatabaseSeeder extends Seeder
             'user_id' => 3,
             'message' => 'hello admin.',
             'to_user_id' => 1
-        ]);
+        ]); */
     }
 }

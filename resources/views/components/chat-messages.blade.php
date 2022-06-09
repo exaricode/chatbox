@@ -1,5 +1,5 @@
-<template>
-    <ul class="chat">
+
+    <ul id="chatMessages">
       @foreach ($messages as $message)
       <li class="">
         <div class="">
@@ -15,9 +15,3 @@
       </li>
       @endforeach
     </ul>
-  </template>
-  {{-- <script>
-  /* export default {
-    props: ["messages"],
-  }; */
-  </script> --}}

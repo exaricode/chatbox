@@ -19,10 +19,11 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{asset('css/chatBox.css') }}" rel="stylesheet">
 </head>
 <body>
     {{-- @stack('main') --}}
-    @stack('main')
+    
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
@@ -82,5 +83,7 @@
             @yield('content')
         </main>
     </div>
+    
+    @stack('main')
 </body>
 </html>
