@@ -15,12 +15,14 @@ class ChannelCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $name;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(PrivateChannel $name)
+    public function __construct($name)
     {
         $this->name = $name;
     }

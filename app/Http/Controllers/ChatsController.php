@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Broadcast;
+use stdClass;
 
 class ChatsController extends Controller
 {
@@ -23,22 +24,14 @@ class ChatsController extends Controller
         return view('chat');
     }
 
-    public static function fetchMessages()
+    public static function fetchMessages(Request $channel)
     {
         $user = Auth::user();
-        
-        // return Message::all();
-        /* $user = Auth::user();
-        if ($user->id == 1){ */
-            return Message::with('user')->get();
-        /* } else {
-            return Message::with('user')
-                ->where('user_id', $user->id)
-                // ->orWhere('to_user', $user->id)
-                ->get();
-        } */
-
-        
+    
+        return Message::with('user')
+            ->where([['user_id', $user->id], ['to_user_id', $channel->channelName]])
+            ->orWhere([['user_id', $channel->channelName], ['to_user_id', $user->id]])
+            ->get();
     }
 
     // selected user
@@ -60,11 +53,13 @@ class ChatsController extends Controller
             $begeleiding = ChatsController::getUsers();
             
             foreach ($begeleiding as $b){
-                $channelName = new PrivateChannel(Auth::user()->username . '-' . $b->username);
+                $channel = new stdClass();
+                $channel->name = new PrivateChannel(Auth::user()->username . '-' . $b->username);
+                $channel->to_user_id = $b->id;
                 // dd($channelName);
-                array_push($channels, broadcast(new ChannelCreated($channelName))->toOthers());
+                array_push($channels, broadcast(new ChannelCreated($channel->name))->toOthers());
                 
-                array_push($channelNames, $channelName);
+                array_push($channelNames, $channel);
             }
             // dd($channelNames);
             return $channelNames;
@@ -72,7 +67,6 @@ class ChatsController extends Controller
     }
 
     public static function getUsers(){
-
         return User::getAdminUsers();
     }
 }

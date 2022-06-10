@@ -8,7 +8,8 @@
             {{ session('status') }}
         </div>
     @endif
-
+    
+    @auth
     {{ __('You are logged in!') }}
     <div class="fixed bottom-4 right-4">
         
@@ -16,12 +17,10 @@
             <button class="chatBtn" 
                 id="openChatBtn">chat</button>
         </div>
-       
-        <div id="chatWindow" >
-            <x-chat-channels></x-chat-channels>
-            <x-chat></x-chat>
-        </div>
+    
+        <x-chat></x-chat>
         
+    @endauth
     </div>
 </div>
 @endsection

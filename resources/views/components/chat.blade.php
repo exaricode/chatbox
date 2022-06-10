@@ -1,11 +1,14 @@
-
-<div>
-    <div class="flex justify-start"><span class=mr-auto>Chat name</span>
+<div id="chatWindow">
+    <div id="chatMenu"><span>Chat name</span>
         <button id="closeChat" class="chatBtn" >X</button>
     </div>
-    <div id="chatMessages">
+    <div id="chatScreen">
+      <div id="chatChannels">
+      </div>
+      <div id="chatMessages">
+      </div>
     </div>
-    <div class="" user="{{ Auth::user() }}">
+    <div id="chatSend" user="{{ Auth::user() }}">
         <!-- Input field. -->
         <input
             id="sendMessageInp"
@@ -25,6 +28,7 @@
         </span>
     </div>
 </div>
+
 
 {{-- @push('main') --}}
 <script>

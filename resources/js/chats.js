@@ -1,3 +1,4 @@
+const { data } = require('autoprefixer');
 const { default: axios } = require('axios');
 
 require('./bootstrap');
@@ -31,15 +32,13 @@ sendMessageBtn.addEventListener('click', () => {
 });
 
 openChatBtn.addEventListener('click', () => {
-  console.log('open chat');
-  chatWindow.style.display = 'block';
+  chatWindow.style.display = 'flow-root';
   openChatBtn.style.display = 'none';
-  fetchMessages();
+  // fetchMessages();
   let channel = getChannels();
   for (const c in channel) {
-    console.log('click btn channel');
-    console.log(channel[c]);
-    window.Echo.private(channel[c])
+    console.log(channel[c].name);
+    window.Echo.private(channel[c].name)
       .listen('MessageSent', (e) => {
         messages.push({
           message: e.message.message,
@@ -47,15 +46,6 @@ openChatBtn.addEventListener('click', () => {
         });
       });
   }
-  
-  /* console.log(window.Echo);
-  window.Echo.private('chat')
-    .listen('MessageSent', (e) => {
-      messages.push({
-        message: e.message.message,
-        user: e.user
-    });
-  }) */
 });
 
 closeChat.addEventListener('click', () => {
@@ -76,10 +66,11 @@ function sendMessage() {
   return newMessage;
 }
 
-async function fetchMessages() {
+async function fetchMessages(name) {
   console.log('fetch');
+  let data = {'channelName': name}
   //GET request to the messages route in our Laravel server to fetch all the messages
-  await axios.get('/messages').then(response => {
+  await axios.post('/fetchmessages', data).then(response => {
     //Save the response in the messages array to display on the chat view
     messages = response.data;
    /*  console.log(messages);
@@ -100,6 +91,7 @@ function addMessage(message) {
 }
 
 function showMessages(message) {
+  chatMessages.innerHTML = '';
   let ul = document.createElement('ul');
   for (const m in message) {
     let li = document.createElement('li');
@@ -115,14 +107,12 @@ function showMessages(message) {
 }
 
 async function getChannels() {
-  let res = await axios.get('/channels').then(response => {
-    console.log('getChannels: ')
-    console.log(response);
+  let resp = await axios.get('/channels').then(response => {
     channels = response.data;
   });
 
   showChannels(channels);
-  return res.data;
+  return resp.data;
 }
 
 function showChannels(channel) {
@@ -131,8 +121,19 @@ function showChannels(channel) {
     console.log('showChannels');
     console.log(channel[c]);
     let li = document.createElement('li');
-    li.innerHTML = channel[c];
+    li.innerHTML = channel[c].name.name;
+    // li.setAttribute(data-id, channel[c].to_user_id);
+    li.dataset.id = channel[c].to_user_id;
+    li.addEventListener('click', (e) => {
+      /* console.log(e.target)
+      let data = {
+        'name': e.target.textContent,
+        'to_user_id': e.target.dataset
+      } */
+      fetchMessages(e.target.dataset.id);
+    });
     ul.appendChild(li);
   }
   chatChannels.appendChild(ul);
 }
+

@@ -4,20 +4,57 @@
     border-radius: 5%;
 }
 
-#chatMessages {
+#chatMessages, #chatChannels {
+    display: inline-block;
+    overflow: scroll;
+}
+
+#chatScreen {
     display: grid;
-    grid-template-columns: 1fr, 3fr;
+    grid-template-columns: 1fr 3fr;
+    overflow: hidden;
+    scroll-behavior: smooth;
+}
+
+#chatChannels {
+    align-self: top;
 }
 
 #chatWindow {
     display: none;
     border: 2px solid black;
     border-radius: 5%;
-    width: 100%;
-    height: 50%;
+    width: 50vw;
+    height: 50vh;
     max-height: 50vh;
     padding: .5rem 1rem;
     margin: 0 1rem 1rem 0;
-    overflow: scroll;
-    scroll-behavior: smooth;
+    overflow-y: scroll;
+}
+
+#chatMenu {
+    display: flex;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    border-bottom: 2px solid black;
+    width: 100%;
+}
+
+#chatMenu > span:first-child {
+    -webkit-margin-end: auto;
+            margin-inline-end: auto;
+}
+
+#chatSend {
+    display: flex;
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    border-top: 2px solid black;
+    width: 100%;
+}
+
+#chatSend > input:first-child {
+    width: 100%;
 }
