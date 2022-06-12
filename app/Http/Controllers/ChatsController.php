@@ -46,7 +46,7 @@ class ChatsController extends Controller
         $user = Auth::user();
         $message = $user->messages()->create([
             'message' => $request->input('message'),
-            'to_user_id' => $request->to_user_id
+            'to_user_id' => (int) $request->to_user_id
         ]);
         $channelName = $request->chatname;
         broadcast(new MessageSent($user, $message, $channelName))->toOthers();
@@ -57,22 +57,18 @@ class ChatsController extends Controller
         $channelNames = [];
 
         if(!Auth::user()->is_admin){
-            // $channels = [];
-           
             $begeleiding = ChatsController::getAdminUsers();
             
             foreach ($begeleiding as $b){
                 $channel = new stdClass();
                 $channel->name = new PrivateChannel(Auth::user()->username . '-' . $b->username);
                 $channel->to_user_id = $b->id;
-                // dd($channelName);
-                // array_push($channels, 
-                broadcast(new ChannelCreated($channel->name))->toOthers();
-                // );
                 
+                broadcast(new ChannelCreated($channel->name))->toOthers();
+               
                 array_push($channelNames, $channel);
             }
-            // dd($channelNames);
+            
             return $channelNames;
 
         } else if (Auth::user()->is_admin) {
