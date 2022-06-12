@@ -1,5 +1,5 @@
 <div id="chatWindow">
-    <div id="chatMenu"><span>Chat name</span>
+    <div id="chatMenu"><span id="chatChannelName">Chat name</span>
         <button id="closeChat" class="chatBtn" >X</button>
     </div>
     <div id="chatScreen">

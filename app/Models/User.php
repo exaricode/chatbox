@@ -53,4 +53,9 @@ class User extends Authenticatable
                 
         return $begeleiding;
     }
+
+    public static function getUsers() {
+        $medient = User::where('is_admin', false)->get();
+        return $medient;
+    }
 }

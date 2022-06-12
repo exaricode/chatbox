@@ -19,16 +19,18 @@ class MessageSent implements ShouldBroadcast
 
     public $user;
     public $message;
+    public $channelName;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(User $user, Message $message)
+    public function __construct(User $user, Message $message, $channelName)
     {
         $this->user = $user;
         $this->message = $message;
+        $this->channelName = $channelName;
     }
 
     /**
@@ -40,8 +42,9 @@ class MessageSent implements ShouldBroadcast
      
     public function broadcastOn()
     {
+        return new PrivateChannel($this->channelName);
         // dd ($this->user);
-        $channels = [];
+        /* $channels = [];
 
         // $medient = $this->user;
         $begeleiding = ChatsController::getUsers();
@@ -51,6 +54,6 @@ class MessageSent implements ShouldBroadcast
             array_push($channels, new PrivateChannel($channelName));
         }
         
-        return $channels;
+        return $channels; */
     }
 }

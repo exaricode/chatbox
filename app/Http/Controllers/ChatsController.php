@@ -27,11 +27,17 @@ class ChatsController extends Controller
     public static function fetchMessages(Request $channel)
     {
         $user = Auth::user();
-    
+
         return Message::with('user')
-            ->where([['user_id', $user->id], ['to_user_id', $channel->channelName]])
-            ->orWhere([['user_id', $channel->channelName], ['to_user_id', $user->id]])
+            ->where([['user_id', $user->id],['to_user_id', $channel->idChannel]])
+            ->orWhere([['user_id', $channel->idChannel], ['to_user_id', $user->id]])
             ->get();
+    /* 
+        return Message::with('user')->where(function($query) use ($user, $channel) {
+            $query->where([['user_id', $user->id], ['to_user_id', $channel->idChannel]]);
+            $query->orWhere([['user_id', $channel->idChannel], ['to_user_id', $user->id]]);
+        })
+            ->get(); */
     }
 
     // selected user
@@ -39,34 +45,56 @@ class ChatsController extends Controller
     {
         $user = Auth::user();
         $message = $user->messages()->create([
-            'message' => $request->input('message')
+            'message' => $request->input('message'),
+            'to_user_id' => $request->to_user_id
         ]);
-        broadcast(new MessageSent($user, $message))->toOthers();
+        $channelName = $request->chatname;
+        broadcast(new MessageSent($user, $message, $channelName))->toOthers();
         return ['status' => 'Message Sent!'];
     }
 
     public static function getChannels() {
-        if(!Auth::user()->is_admin){
-            $channels = [];
-            $channelNames = [];
+        $channelNames = [];
 
-            $begeleiding = ChatsController::getUsers();
+        if(!Auth::user()->is_admin){
+            // $channels = [];
+           
+            $begeleiding = ChatsController::getAdminUsers();
             
             foreach ($begeleiding as $b){
                 $channel = new stdClass();
                 $channel->name = new PrivateChannel(Auth::user()->username . '-' . $b->username);
                 $channel->to_user_id = $b->id;
                 // dd($channelName);
-                array_push($channels, broadcast(new ChannelCreated($channel->name))->toOthers());
+                // array_push($channels, 
+                broadcast(new ChannelCreated($channel->name))->toOthers();
+                // );
                 
                 array_push($channelNames, $channel);
             }
             // dd($channelNames);
             return $channelNames;
+
+        } else if (Auth::user()->is_admin) {
+            $medient = ChatsController::getUsers();
+
+            foreach($medient as $m) {
+                $channel = new stdClass();
+                $channel->name = new PrivateChannel($m->username . '-' . Auth::user()->username);
+                $channel->to_user_id = $m->id;
+                broadcast(new ChannelCreated($channel->name))->toOthers();
+
+                array_push($channelNames, $channel);
+            }
+            return $channelNames;
         }
     }
 
-    public static function getUsers(){
+    public static function getAdminUsers(){
         return User::getAdminUsers();
+    }
+
+    public static function getUsers(){
+        return User::getUsers();
     }
 }

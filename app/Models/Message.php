@@ -11,7 +11,7 @@ class Message extends Model
 
     protected $connection = 'sqlite';
     
-    protected $fillable = ['message'];
+    protected $fillable = ['message', 'to_user_id'];
     public $timestamps = false;
 
     public function user(){

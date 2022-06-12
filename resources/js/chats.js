@@ -1,4 +1,3 @@
-const { data } = require('autoprefixer');
 const { default: axios } = require('axios');
 
 require('./bootstrap');
@@ -11,6 +10,7 @@ const sendMessageBtn = document.getElementById('sendMessageBtn');
 const sendMessageInp = document.getElementById('sendMessageInp');
 const chatMessages = document.getElementById('chatMessages');
 const chatChannels = document.getElementById('chatChannels');
+const chatChannelName = document.getElementById('chatChannelName');
 
 let messages = [];
 let channels = [];
@@ -23,9 +23,9 @@ window.addEventListener('load', () => {
   
 });
 
-sendMessageInp.addEventListener('keyup', (e) => {
+/* sendMessageInp.addEventListener('keyup', (e) => {
   sendMessage();
-});
+}); */
 
 sendMessageBtn.addEventListener('click', () => {
   sendMessage();
@@ -57,7 +57,9 @@ function sendMessage() {
   //Emit a "messagesent" event including the user who sent the message along with the message content
   newMessage = {
       user: this.user,
-      message: sendMessageInp.value
+      message: sendMessageInp.value,
+      chatname: chatChannelName.textContent,
+      to_user_id: chatChannelName.dataset.id
   }
 
   addMessage(newMessage);
@@ -66,9 +68,9 @@ function sendMessage() {
   return newMessage;
 }
 
-async function fetchMessages(name) {
+async function fetchMessages(id) {
   console.log('fetch');
-  let data = {'channelName': name}
+  let data = {'idChannel': id}
   //GET request to the messages route in our Laravel server to fetch all the messages
   await axios.post('/fetchmessages', data).then(response => {
     //Save the response in the messages array to display on the chat view
@@ -130,6 +132,8 @@ function showChannels(channel) {
         'name': e.target.textContent,
         'to_user_id': e.target.dataset
       } */
+      chatChannelName.innerHTML = e.target.textContent;
+      chatChannelName.dataset.id = e.target.dataset.id;
       fetchMessages(e.target.dataset.id);
     });
     ul.appendChild(li);

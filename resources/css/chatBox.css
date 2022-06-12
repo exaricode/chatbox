@@ -6,7 +6,7 @@
 
 #chatMessages, #chatChannels {
     display: inline-block;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 #chatScreen {
@@ -29,7 +29,6 @@
     max-height: 50vh;
     padding: .5rem 1rem;
     margin: 0 1rem 1rem 0;
-    overflow-y: scroll;
 }
 
 #chatMenu {
