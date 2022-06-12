@@ -8,7 +8,7 @@
       <div id="chatMessages">
       </div>
     </div>
-    <div id="chatSend" user="{{ Auth::user() }}">
+    <div id="chatSend" {{-- user="{{ Auth::user() }}" --}}>
         <!-- Input field. -->
         <input
             id="sendMessageInp"
