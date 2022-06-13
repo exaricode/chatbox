@@ -26128,16 +26128,39 @@ openChatBtn.addEventListener('click', function () {
   openChatBtn.style.display = 'none'; // fetchMessages();
 
   var channel = getChannels();
+  console.log('channels: '); // console.log(channel);
 
-  for (var c in channel) {
-    console.log(channel[c].name);
-    window.Echo["private"](channel[c].name).listen('MessageSent', function (e) {
-      messages.push({
-        message: e.message.message,
-        user: e.user
+  channel.then(function (x) {
+    // console.log(channel[x]);
+    for (var c in x) {
+      var n = x[c].name; //.substr(8);
+      // console.log(n); // console.log(x[c].name.substr(7));
+
+      window.Echo["private"](n).listen('MessageSent', function (e) {
+        console.log(e);
+        messages.push({
+          message: e.message.message,
+          user: e.user
+        });
       });
-    });
-  }
+    } // console.log(channel[x].name);
+
+  }); // console.log('channel: ');
+  //console.log(channel);
+
+  /* for (const c in channel) {
+    console.log(channel[c]);
+    /* channel[c].name = channel[c].name.substr(7);
+    console.log(channel[c].name); */
+
+  /*  window.Echo.private(channel[c].name)
+     .listen('MessageSent', (e) => {
+       messages.push({
+         message: e.message.message,
+         user: e.user
+       });
+     });
+  } */
 });
 closeChat.addEventListener('click', function () {
   chatWindow.style.display = 'none';
@@ -26213,8 +26236,8 @@ function showMessages(message) {
     var li = document.createElement('li');
     var strong = document.createElement('strong');
     var p = document.createElement('p');
-    strong.innerHTML = message[m].message;
-    p.innerHTML = message[m].user.name;
+    p.innerHTML = message[m].message;
+    strong.innerHTML = message[m].user.name;
     li.appendChild(strong);
     li.appendChild(p);
     ul.appendChild(li);
@@ -26229,22 +26252,24 @@ function getChannels() {
 
 function _getChannels() {
   _getChannels = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-    var resp;
+    var res;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
             return axios.get('/channels').then(function (response) {
-              channels = response.data;
+              channels = response.data; // console.log(channels);
+
+              showChannels(channels);
+              return response.data;
             });
 
           case 2:
-            resp = _context2.sent;
-            showChannels(channels);
-            return _context2.abrupt("return", resp.data);
+            res = _context2.sent;
+            return _context2.abrupt("return", res);
 
-          case 5:
+          case 4:
           case "end":
             return _context2.stop();
         }
@@ -26258,10 +26283,10 @@ function showChannels(channel) {
   var ul = document.createElement('ul');
 
   for (var c in channel) {
-    console.log('showChannels');
-    console.log(channel[c]);
+    /* console.log('showChannels');
+    console.log(channel[c]); */
     var li = document.createElement('li');
-    li.innerHTML = channel[c].name.name; // li.setAttribute(data-id, channel[c].to_user_id);
+    li.innerHTML = channel[c].name; // li.setAttribute(data-id, channel[c].to_user_id);
 
     li.dataset.id = channel[c].to_user_id;
     li.addEventListener('click', function (e) {

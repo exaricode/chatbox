@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use App\Models\Message;
-use App\Http\Controllers\ChatsController;
+// use App\Http\Controllers\ChatsController;
 
 class MessageSent implements ShouldBroadcast
 {

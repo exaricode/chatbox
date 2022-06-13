@@ -61,29 +61,27 @@ class ChatsController extends Controller
             
             foreach ($begeleiding as $b){
                 $channel = new stdClass();
-                $channel->name = new PrivateChannel(Auth::user()->username . '-' . $b->username);
+                $channel->name = Auth::user()->username . '-' . $b->username;
                 $channel->to_user_id = $b->id;
                 
-                broadcast(new ChannelCreated($channel->name))->toOthers();
+               // broadcast(new ChannelCreated($channel->name))->toOthers();
                
                 array_push($channelNames, $channel);
             }
-            
-            return $channelNames;
 
         } else if (Auth::user()->is_admin) {
             $medient = ChatsController::getUsers();
 
             foreach($medient as $m) {
                 $channel = new stdClass();
-                $channel->name = new PrivateChannel($m->username . '-' . Auth::user()->username);
+                $channel->name = $m->username . '-' . Auth::user()->username;
                 $channel->to_user_id = $m->id;
-                broadcast(new ChannelCreated($channel->name))->toOthers();
+                // broadcast(new ChannelCreated($channel->name))->toOthers();
 
                 array_push($channelNames, $channel);
-            }
-            return $channelNames;
+            } 
         }
+        return $channelNames;
     }
 
     public static function getAdminUsers(){

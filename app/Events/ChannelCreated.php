@@ -9,9 +9,9 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Http\Controllers\ChatsController;
+// use App\Http\Controllers\ChatsController;
 
-class ChannelCreated implements ShouldBroadcast
+class ChannelCreated 
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
