@@ -33,8 +33,8 @@ class ChatsController extends Controller
         $user = Auth::user();
 
         return Message::with('user')
-            ->where([['user_id', $user->id],['to_user_id', $channel->idChannel]])
-            ->orWhere([['user_id', $channel->idChannel], ['to_user_id', $user->id]])
+            ->where([['user_id', $user->id],['to_user_id', (int) $channel->idChannel]])
+            ->orWhere([['user_id', (int) $channel->idChannel], ['to_user_id', $user->id]])
             ->get();
     /* 
         return Message::with('user')->where(function($query) use ($user, $channel) {

@@ -37,22 +37,26 @@ openChatBtn.addEventListener('click', () => {
   chatWindow.style.display = 'flow-root';
   openChatBtn.style.display = 'none';
   
-  let channel = getChannels();
-  
-  channel.then(x => {
-    for(const c in x) {
-      let n = x[c].name;
-      window.Echo.private(n)
-        .listen('MessageSent', (e) => {
-          console.log(e);
-          messages.push({
-            message: e.message.message,
-            user: e.user
+  if (!openChat) {
+    let channel = getChannels();
+    
+    channel.then(x => {
+      for(const c in x) {
+        let n = x[c].name;
+        window.Echo.private(n)
+          .listen('MessageSent', (e) => {
+            console.log(e);
+            messages.push({
+              message: e.message.message,
+              user: e.user
+            });
+            addSendMessage({message: e.message.message, user: e.user });
           });
-          showMessages({message: e.message.message, user: e.user });
-        });
-    }
-  });
+      }
+    });
+    openChat = true;
+  }
+
 });
 
 closeChat.addEventListener('click', () => {
@@ -77,13 +81,11 @@ function sendMessage() {
 }
 
 async function fetchMessages(id) {
-  console.log('fetch');
   let data = {'idChannel': id};
   //GET request to the messages route in our Laravel server to fetch all the messages
   await axios.post('/fetchmessages', data).then(response => {
     //Save the response in the messages array to display on the chat view
     messages = response.data;
-    console.log(response);
   });
  
   showMessages(messages);
@@ -93,17 +95,20 @@ async function fetchMessages(id) {
 function addMessage(message) {
   //Pushes it to the messages array
   messages.push(message);
-  console.log('message: ');
-  console.log(message);
-  // showMessages([message]);
+  // addSendMessage(message);
+  
   //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
   axios.post('/messages', message).then(response => {
     console.log(response.data);
   });
+ 
+}
+
+function addSendMessage(message) {
   let li = document.createElement('li');
   let strong = document.createElement('strong');
   let p = document.createElement('p');
-  strong.innerHTML = user.username;
+  strong.innerHTML = message.user.username;
   p.innerHTML = message.message;
   li.appendChild(strong);
   li.appendChild(p);
@@ -111,9 +116,6 @@ function addMessage(message) {
 }
 
 function showMessages(message) {
-  console.log('show messages: ');
-  console.log(typeof(message));
-  console.log(message);
   chatMessages.innerHTML = '';
   let ul = document.createElement('ul');
   for (const m in message) {

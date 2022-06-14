@@ -16,7 +16,7 @@
             name="message"
             class=""
             placeholder="Type your message here..."
-            value="newMessage"
+            value=""
             @keyup.enter="sendMessage"
         />
         <!-- Button -->
