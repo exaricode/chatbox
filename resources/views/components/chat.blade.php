@@ -32,7 +32,7 @@
 
 {{-- @push('main') --}}
 <script>
-   
+   /* 
   
     sendMessageInp.addEventListener('keyup', (e) => {
       sendMessage();
@@ -40,6 +40,6 @@
   
     sendMessageBtn.addEventListener('click', () => {
       sendMessage();
-    })
+    }) */
   </script> 
 {{-- @endpush --}}

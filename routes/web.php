@@ -35,3 +35,4 @@ Route::get('/home', function () {
 Route::post('/fetchmessages', [ChatsController::class, 'fetchMessages']);
 Route::get('/channels', [ChatsController::class, 'getChannels']);
 Route::post('/messages', [ChatsController::class, 'sendMessage']);
+Route::post('/username', [ChatsController::class, 'getUserName']);

@@ -3,7 +3,7 @@
      <div class="">
        <!-- Input field. -->
        <input
-         id="sendMessageInp"
+         id=""
          type="text"
          name="message"
          class=""
@@ -14,7 +14,7 @@
        <!-- Button -->
        <span class="">
          <!-- Call sendMessage() this button is clicked. -->
-         <button class="btn btn-primary btn-sm" id="sendMessageBtn">
+         <button class="btn btn-primary btn-sm" id="">
            Send
          </button>
        </span>

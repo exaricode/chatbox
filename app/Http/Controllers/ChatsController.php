@@ -24,6 +24,10 @@ class ChatsController extends Controller
         return view('chat');
     }
 
+    public static function getUserName() {
+        return Auth::user();
+    }
+
     public static function fetchMessages(Request $channel)
     {
         $user = Auth::user();

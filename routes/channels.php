@@ -34,6 +34,7 @@ foreach ($begeleiding as $b) {
         return (string) $user->username;
     }); */
 }
+
 /* 
 Broadcast::channel('chat', function ($user) {
     return Auth::check();

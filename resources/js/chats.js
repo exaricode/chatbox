@@ -16,16 +16,18 @@ let messages = [];
 let channels = [];
 let newMessage = '';
 let openChat = false;
+let user = '';
 
 window.addEventListener('load', () => {
-  chatWindow.style.display = 'none';
-  // fetchMessages();
-  
+  chatWindow.style.display = 'none'; 
+  getUser();
 });
 
-/* sendMessageInp.addEventListener('keyup', (e) => {
-  sendMessage();
-}); */
+async function getUser () {
+  await axios.post('/username').then(response => {
+    user = response.data;
+  });
+}
 
 sendMessageBtn.addEventListener('click', () => {
   sendMessage();
@@ -34,15 +36,12 @@ sendMessageBtn.addEventListener('click', () => {
 openChatBtn.addEventListener('click', () => {
   chatWindow.style.display = 'flow-root';
   openChatBtn.style.display = 'none';
-  // fetchMessages();
+  
   let channel = getChannels();
-  console.log('channels: ')
-  // console.log(channel);
+  
   channel.then(x => {
-    // console.log(channel[x]);
     for(const c in x) {
-      let n = x[c].name; //.substr(8);
-      // console.log(n); // console.log(x[c].name.substr(7));
+      let n = x[c].name;
       window.Echo.private(n)
         .listen('MessageSent', (e) => {
           console.log(e);
@@ -50,24 +49,10 @@ openChatBtn.addEventListener('click', () => {
             message: e.message.message,
             user: e.user
           });
+          showMessages({message: e.message.message, user: e.user });
         });
     }
-    // console.log(channel[x].name);
   });
-  // console.log('channel: ');
-  //console.log(channel);
-  /* for (const c in channel) {
-    console.log(channel[c]);
-    /* channel[c].name = channel[c].name.substr(7);
-    console.log(channel[c].name); */
-   /*  window.Echo.private(channel[c].name)
-      .listen('MessageSent', (e) => {
-        messages.push({
-          message: e.message.message,
-          user: e.user
-        });
-      });
-  } */
 });
 
 closeChat.addEventListener('click', () => {
@@ -78,7 +63,7 @@ closeChat.addEventListener('click', () => {
 function sendMessage() {
   //Emit a "messagesent" event including the user who sent the message along with the message content
   newMessage = {
-      user: this.user,
+      user: user,
       message: sendMessageInp.value,
       chatname: chatChannelName.textContent,
       to_user_id: chatChannelName.dataset.id
@@ -87,6 +72,7 @@ function sendMessage() {
   addMessage(newMessage);
   //Clear the input
   newMessage = "";
+  sendMessageInp.value = '';
   return newMessage;
 }
 
@@ -97,8 +83,7 @@ async function fetchMessages(id) {
   await axios.post('/fetchmessages', data).then(response => {
     //Save the response in the messages array to display on the chat view
     messages = response.data;
-   /*  console.log(messages);
-    showMessages(messages); */
+    console.log(response);
   });
  
   showMessages(messages);
@@ -108,13 +93,27 @@ async function fetchMessages(id) {
 function addMessage(message) {
   //Pushes it to the messages array
   messages.push(message);
+  console.log('message: ');
+  console.log(message);
+  // showMessages([message]);
   //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
   axios.post('/messages', message).then(response => {
     console.log(response.data);
   });
+  let li = document.createElement('li');
+  let strong = document.createElement('strong');
+  let p = document.createElement('p');
+  strong.innerHTML = user.username;
+  p.innerHTML = message.message;
+  li.appendChild(strong);
+  li.appendChild(p);
+  chatMessages.firstChild.appendChild(li);
 }
 
 function showMessages(message) {
+  console.log('show messages: ');
+  console.log(typeof(message));
+  console.log(message);
   chatMessages.innerHTML = '';
   let ul = document.createElement('ul');
   for (const m in message) {
@@ -122,7 +121,7 @@ function showMessages(message) {
     let strong = document.createElement('strong');
     let p = document.createElement('p');
     p.innerHTML = message[m].message;
-    strong.innerHTML = message[m].user.name;
+    strong.innerHTML = message[m].user.username;
     li.appendChild(strong)
     li.appendChild(p);
     ul.appendChild(li);
@@ -133,32 +132,20 @@ function showMessages(message) {
 async function getChannels() {
   let res = await axios.get('/channels').then(response => {
     channels = response.data;
-    // console.log(channels);
     showChannels(channels);
     return response.data;
   });
-  // console.log(res);
 
   return res;
-  /* showChannels(channels);
-  return res.data; */
 }
 
 function showChannels(channel) {
   let ul = document.createElement('ul');
   for (const c in channel) {
-    /* console.log('showChannels');
-    console.log(channel[c]); */
     let li = document.createElement('li');
     li.innerHTML = channel[c].name;
-    // li.setAttribute(data-id, channel[c].to_user_id);
     li.dataset.id = channel[c].to_user_id;
     li.addEventListener('click', (e) => {
-      /* console.log(e.target)
-      let data = {
-        'name': e.target.textContent,
-        'to_user_id': e.target.dataset
-      } */
       chatChannelName.innerHTML = e.target.textContent;
       chatChannelName.dataset.id = e.target.dataset.id;
       fetchMessages(e.target.dataset.id);
