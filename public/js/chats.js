@@ -26148,7 +26148,7 @@ sendMessageBtn.addEventListener('click', function () {
   sendMessage();
 });
 openChatBtn.addEventListener('click', function () {
-  chatWindow.style.display = 'flow-root';
+  chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
 
   if (!openChat) {
@@ -26264,6 +26264,7 @@ function showMessages(message) {
   }
 
   chatMessages.appendChild(ul);
+  chatMessages.scrollTop = 1000;
 }
 
 function getChannels() {

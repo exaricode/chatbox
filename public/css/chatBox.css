@@ -1,3 +1,9 @@
+#chatLocation {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+}
+
 .chatBtn {
     border: 2px solid black;
     padding: .5rem 1rem;
@@ -16,6 +22,7 @@
     overflow: hidden;
     -webkit-margin-after: 1rem;
             margin-block-end: 1rem;
+    
 }
 
 #chatChannels {
@@ -28,6 +35,9 @@
     border-radius: 5%;
     padding: .5rem 1rem;
     margin: 0 1rem 1rem 0;
+    max-height: 75vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 15fr 1fr;
 }
 
 #chatMenu {
@@ -46,12 +56,14 @@
 
 #chatSend {
     display: flex;
-   /*  position: sticky;
-    bottom: 0; */
     border-top: 2px solid black;
     width: 100%;
 }
 
 #chatSend > input:first-child {
     width: 100%;
+    -webkit-margin-start: 1rem;
+            margin-inline-start: 1rem;
+    -webkit-margin-end: 1rem;
+            margin-inline-end: 1rem;
 }

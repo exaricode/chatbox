@@ -8,7 +8,7 @@
       <div id="chatMessages">
       </div>
     </div>
-    <div id="chatSend" {{-- user="{{ Auth::user() }}" --}}>
+    <div id="chatSend">
         <!-- Input field. -->
         <input
             id="sendMessageInp"
@@ -28,18 +28,3 @@
         </span>
     </div>
 </div>
-
-
-{{-- @push('main') --}}
-<script>
-   /* 
-  
-    sendMessageInp.addEventListener('keyup', (e) => {
-      sendMessage();
-    })
-  
-    sendMessageBtn.addEventListener('click', () => {
-      sendMessage();
-    }) */
-  </script> 
-{{-- @endpush --}}

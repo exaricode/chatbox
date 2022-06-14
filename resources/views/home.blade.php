@@ -11,7 +11,7 @@
     
     @auth
     {{ __('You are logged in!') }}
-    <div class="fixed bottom-4 right-4">
+    <div id="chatLocation" class="fixed bottom-4 right-4">
         
         <div>
             <button class="chatBtn" 

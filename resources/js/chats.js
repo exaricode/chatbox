@@ -34,7 +34,7 @@ sendMessageBtn.addEventListener('click', () => {
 });
 
 openChatBtn.addEventListener('click', () => {
-  chatWindow.style.display = 'flow-root';
+  chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
   
   if (!openChat) {
@@ -128,7 +128,9 @@ function showMessages(message) {
     li.appendChild(p);
     ul.appendChild(li);
   }
+  
   chatMessages.appendChild(ul);
+  chatMessages.scrollTop = 1000;
 }
 
 async function getChannels() {
