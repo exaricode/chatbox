@@ -17,5 +17,5 @@ mix.js('resources/js/app.js', 'public/js')
         require("tailwindcss")
     ])
     .postCss("resources/css/chatBox.css", "public/css")
-    .sass('resources/sass/app.scss', 'public/css')
+    .sass('resources/sass/app2.scss', 'public/css')
     .disableNotifications();

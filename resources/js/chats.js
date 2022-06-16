@@ -29,6 +29,8 @@ async function getUser () {
   });
 }
 
+sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
+
 sendMessageBtn.addEventListener('click', () => {
   sendMessage();
 });
@@ -45,7 +47,6 @@ openChatBtn.addEventListener('click', () => {
         let n = x[c].name;
         window.Echo.private(n)
           .listen('MessageSent', (e) => {
-            console.log(e);
             messages.push({
               message: e.message.message,
               user: e.user
@@ -66,18 +67,20 @@ closeChat.addEventListener('click', () => {
 
 function sendMessage() {
   //Emit a "messagesent" event including the user who sent the message along with the message content
-  newMessage = {
-      user: user,
-      message: sendMessageInp.value,
-      chatname: chatChannelName.textContent,
-      to_user_id: chatChannelName.dataset.id
-  }
+  if (chatChannelName.textContent != 'Chat name' && chatChannelName != '') {
+    newMessage = {
+        user: user,
+        message: sendMessageInp.value,
+        chatname: chatChannelName.textContent,
+        to_user_id: chatChannelName.dataset.id
+    }
 
-  addMessage(newMessage);
-  //Clear the input
-  newMessage = "";
-  sendMessageInp.value = '';
-  return newMessage;
+    addMessage(newMessage);
+    //Clear the input
+    newMessage = "";
+    sendMessageInp.value = '';
+    return newMessage;
+  }
 }
 
 async function fetchMessages(id) {
@@ -95,13 +98,11 @@ async function fetchMessages(id) {
 function addMessage(message) {
   //Pushes it to the messages array
   messages.push(message);
-  // addSendMessage(message);
   
   //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
   axios.post('/messages', message).then(response => {
     console.log(response.data);
   });
- 
 }
 
 function addSendMessage(message) {
@@ -112,25 +113,15 @@ function addSendMessage(message) {
   p.innerHTML = message.message;
   li.appendChild(strong);
   li.appendChild(p);
-  chatMessages.firstChild.appendChild(li);
+  chatMessages.firstElementChild.appendChild(li);
+  chatMessages.scrollTop = 10000;
 }
 
 function showMessages(message) {
-  chatMessages.innerHTML = '';
-  let ul = document.createElement('ul');
   for (const m in message) {
-    let li = document.createElement('li');
-    let strong = document.createElement('strong');
-    let p = document.createElement('p');
-    p.innerHTML = message[m].message;
-    strong.innerHTML = message[m].user.username;
-    li.appendChild(strong)
-    li.appendChild(p);
-    ul.appendChild(li);
+    addSendMessage(message[m]);
+    
   }
-  
-  chatMessages.appendChild(ul);
-  chatMessages.scrollTop = 1000;
 }
 
 async function getChannels() {
@@ -139,7 +130,6 @@ async function getChannels() {
     showChannels(channels);
     return response.data;
   });
-
   return res;
 }
 

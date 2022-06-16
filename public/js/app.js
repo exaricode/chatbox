@@ -21009,10 +21009,10 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 
-/***/ "./resources/sass/app.scss":
-/*!*********************************!*\
-  !*** ./resources/sass/app.scss ***!
-  \*********************************/
+/***/ "./resources/sass/app2.scss":
+/*!**********************************!*\
+  !*** ./resources/sass/app2.scss ***!
+  \**********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -26177,8 +26177,9 @@ runtime.setup(pusher_Pusher);
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/chatBox": 0
+/******/ 			"css/app2": 0,
+/******/ 			"css/chatBox": 0,
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -26228,10 +26229,10 @@ runtime.setup(pusher_Pusher);
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/sass/app.scss")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/chatBox"], () => (__webpack_require__("./resources/css/chatBox.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app2","css/chatBox","css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app2","css/chatBox","css/app"], () => (__webpack_require__("./resources/sass/app2.scss")))
+/******/ 	__webpack_require__.O(undefined, ["css/app2","css/chatBox","css/app"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app2","css/chatBox","css/app"], () => (__webpack_require__("./resources/css/chatBox.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

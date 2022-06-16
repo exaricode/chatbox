@@ -26144,6 +26144,9 @@ function _getUser() {
   return _getUser.apply(this, arguments);
 }
 
+sendMessageInp.addEventListener('keyup', function (e) {
+  return e.key == 'Enter' ? sendMessage() : '';
+});
 sendMessageBtn.addEventListener('click', function () {
   sendMessage();
 });
@@ -26157,7 +26160,6 @@ openChatBtn.addEventListener('click', function () {
       for (var c in x) {
         var n = x[c].name;
         window.Echo["private"](n).listen('MessageSent', function (e) {
-          console.log(e);
           messages.push({
             message: e.message.message,
             user: e.user
@@ -26179,17 +26181,19 @@ closeChat.addEventListener('click', function () {
 
 function sendMessage() {
   //Emit a "messagesent" event including the user who sent the message along with the message content
-  newMessage = {
-    user: user,
-    message: sendMessageInp.value,
-    chatname: chatChannelName.textContent,
-    to_user_id: chatChannelName.dataset.id
-  };
-  addMessage(newMessage); //Clear the input
+  if (chatChannelName.textContent != 'Chat name' && chatChannelName != '') {
+    newMessage = {
+      user: user,
+      message: sendMessageInp.value,
+      chatname: chatChannelName.textContent,
+      to_user_id: chatChannelName.dataset.id
+    };
+    addMessage(newMessage); //Clear the input
 
-  newMessage = "";
-  sendMessageInp.value = '';
-  return newMessage;
+    newMessage = "";
+    sendMessageInp.value = '';
+    return newMessage;
+  }
 }
 
 function fetchMessages(_x) {
@@ -26229,8 +26233,7 @@ function _fetchMessages() {
 
 function addMessage(message) {
   //Pushes it to the messages array
-  messages.push(message); // addSendMessage(message);
-  //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
+  messages.push(message); //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
 
   axios.post('/messages', message).then(function (response) {
     console.log(response.data);
@@ -26245,26 +26248,14 @@ function addSendMessage(message) {
   p.innerHTML = message.message;
   li.appendChild(strong);
   li.appendChild(p);
-  chatMessages.firstChild.appendChild(li);
+  chatMessages.firstElementChild.appendChild(li);
+  chatMessages.scrollTop = 10000;
 }
 
 function showMessages(message) {
-  chatMessages.innerHTML = '';
-  var ul = document.createElement('ul');
-
   for (var m in message) {
-    var li = document.createElement('li');
-    var strong = document.createElement('strong');
-    var p = document.createElement('p');
-    p.innerHTML = message[m].message;
-    strong.innerHTML = message[m].user.username;
-    li.appendChild(strong);
-    li.appendChild(p);
-    ul.appendChild(li);
+    addSendMessage(message[m]);
   }
-
-  chatMessages.appendChild(ul);
-  chatMessages.scrollTop = 1000;
 }
 
 function getChannels() {

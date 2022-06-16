@@ -6,6 +6,8 @@
       <div id="chatChannels">
       </div>
       <div id="chatMessages">
+          <ul>
+          </ul>
       </div>
     </div>
     <div id="chatSend">
