@@ -26159,7 +26159,7 @@ openChatBtn.addEventListener('click', function () {
     channel.then(function (x) {
       for (var c in x) {
         var n = x[c].name;
-        window.Echo["private"](n).listen('MessageSent', function (e) {
+        window.Echo["private"](n).listen('MessageSend', function (e) {
           messages.push({
             message: e.message.message,
             user: e.user

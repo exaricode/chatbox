@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Models\Message;
 // use App\Http\Controllers\ChatsController;
 
-class MessageSent implements ShouldBroadcast
+class MessageSend implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -43,17 +43,5 @@ class MessageSent implements ShouldBroadcast
     public function broadcastOn()
     {
         return new PrivateChannel($this->channelName);
-        // dd ($this->user);
-        /* $channels = [];
-
-        // $medient = $this->user;
-        $begeleiding = ChatsController::getUsers();
-        
-        foreach ($begeleiding as $b){
-            $channelName = $this->user->username . '+' . $b->username;
-            array_push($channels, new PrivateChannel($channelName));
-        }
-        
-        return $channels; */
     }
 }

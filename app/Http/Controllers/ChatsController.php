@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use App\Events\MessageSent;
+use App\Events\MessageSend;
 use Illuminate\Support\Facades\Broadcast;
 use stdClass;
 
@@ -36,12 +36,6 @@ class ChatsController extends Controller
             ->where([['user_id', $user->id],['to_user_id', (int) $channel->idChannel]])
             ->orWhere([['user_id', (int) $channel->idChannel], ['to_user_id', $user->id]])
             ->get();
-    /* 
-        return Message::with('user')->where(function($query) use ($user, $channel) {
-            $query->where([['user_id', $user->id], ['to_user_id', $channel->idChannel]]);
-            $query->orWhere([['user_id', $channel->idChannel], ['to_user_id', $user->id]]);
-        })
-            ->get(); */
     }
 
     // selected user
@@ -53,7 +47,7 @@ class ChatsController extends Controller
             'to_user_id' => (int) $request->to_user_id
         ]);
         $channelName = $request->chatname;
-        broadcast(new MessageSent($user, $message, $channelName))->toOthers();
+        broadcast(new MessageSend($user, $message, $channelName))->toOthers();
         return ['status' => 'Message Sent!'];
     }
 
@@ -67,8 +61,6 @@ class ChatsController extends Controller
                 $channel = new stdClass();
                 $channel->name = Auth::user()->username . '-' . $b->username;
                 $channel->to_user_id = $b->id;
-                
-               // broadcast(new ChannelCreated($channel->name))->toOthers();
                
                 array_push($channelNames, $channel);
             }
@@ -80,7 +72,6 @@ class ChatsController extends Controller
                 $channel = new stdClass();
                 $channel->name = $m->username . '-' . Auth::user()->username;
                 $channel->to_user_id = $m->id;
-                // broadcast(new ChannelCreated($channel->name))->toOthers();
 
                 array_push($channelNames, $channel);
             } 

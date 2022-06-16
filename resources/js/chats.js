@@ -46,7 +46,7 @@ openChatBtn.addEventListener('click', () => {
       for(const c in x) {
         let n = x[c].name;
         window.Echo.private(n)
-          .listen('MessageSent', (e) => {
+          .listen('MessageSend', (e) => {
             messages.push({
               message: e.message.message,
               user: e.user
