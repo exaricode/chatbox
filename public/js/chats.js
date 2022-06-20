@@ -26175,17 +26175,11 @@ openChatBtn.addEventListener('click', function () {
             addSendMessage(m);
           }
 
-          var listId = Array.from(chatChannels.firstElementChild.childNodes); // console.log(chatChannels.firstElementChild.childNodes.dataset.id == e.user.id);
-
-          listId.filter(function (elem) {
-            console.log(elem.dataset.id);
-            console.log(e.user.id);
-            elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : '';
-          });
-          console.log('listid');
-          console.log(listId); // console.log(chatChannels.firstElementChild.childNodes[e.user.id]);
-
           if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
+            var listId = Array.from(chatChannels.firstElementChild.childNodes);
+            listId.filter(function (elem) {
+              elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : '';
+            });
             showNotification(m.message, m.user.username);
           }
         });
@@ -26269,6 +26263,13 @@ function addSendMessage(message) {
   var p = document.createElement('p');
   strong.innerHTML = message.user.username;
   p.innerHTML = message.message;
+
+  if (message.user.username == user.username) {
+    li.classList.add('message', 'thisUser');
+  } else {
+    li.classList.add('message', 'otherUser');
+  }
+
   li.appendChild(strong);
   li.appendChild(p);
   chatMessages.firstElementChild.appendChild(li);
@@ -26365,6 +26366,11 @@ function _showNotification() {
               notification.addEventListener('click', function () {
                 window.focus();
               });
+              /* document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                  notification.close();
+                }
+              }) */
             };
 
             showError = function showError() {

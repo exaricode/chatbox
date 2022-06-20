@@ -1,7 +1,3 @@
-/* #dropdown:hover > .dropdown-menu {
-    display: inline-block;
-} */
-
 #chatLocation {
     position: fixed;
     bottom: 1rem;
@@ -14,25 +10,6 @@
     border-radius: 5%;
 }
 
-#chatMessages, #chatChannels {
-    height: auto;
-    display: inline-block;
-    overflow-y: scroll;
-}
-
-#chatScreen {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    overflow: hidden;
-    -webkit-margin-after: 1rem;
-            margin-block-end: 1rem;
-    
-}
-
-#chatChannels {
-    align-self: top;
-}
-
 #chatWindow {
     display: none;
     border: 2px solid black;
@@ -43,6 +20,25 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 15fr 1fr;
 }
+
+#chatScreen {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    overflow: hidden;
+    -webkit-margin-after: 1rem;
+            margin-block-end: 1rem;
+}
+
+#chatMessages, #chatChannels {
+    height: auto;
+    display: inline-block;
+    overflow-y: scroll;
+}
+
+#chatChannels {
+    align-self: top;
+}
+
 
 #chatMenu {
     display: flex;
@@ -70,4 +66,40 @@
             margin-inline-start: 1rem;
     -webkit-margin-end: 1rem;
             margin-inline-end: 1rem;
+}
+
+#chatChannels > ul > li {
+    border: 2px solid transparent;
+    padding: .5rem .1rem;
+}
+
+#chatMessages > ul > li {
+    padding: .5rem 1rem;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+/* message class / this user / other user */
+.message {
+    border: 1px solid black;
+    border-radius: 5% / 10%;
+    margin: .5rem 1rem;
+    padding: .5rem 1rem
+}
+
+.thisUser {
+    background-color: rgba(236, 239, 28, 1);
+    -webkit-margin-start: auto;
+            margin-inline-start: auto;
+}
+
+.thisUser > strong {
+    text-align: end;
+}
+
+.otherUser {
+    background-color: rgba(151, 241, 151, 1);
+    -webkit-margin-end: auto;
+            margin-inline-end: auto;
 }
