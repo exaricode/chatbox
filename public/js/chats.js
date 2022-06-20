@@ -26114,14 +26114,16 @@ var channels = [];
 var newMessage = '';
 var openChat = false;
 var user = '';
+var checkChatName = '';
 window.addEventListener('load', function () {
   chatWindow.style.display = 'none';
   getUser();
-});
+}); // get username
 
 function getUser() {
   return _getUser.apply(this, arguments);
-}
+} // send message on click and on enter key
+
 
 function _getUser() {
   _getUser = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -26149,8 +26151,10 @@ sendMessageInp.addEventListener('keyup', function (e) {
 });
 sendMessageBtn.addEventListener('click', function () {
   sendMessage();
-});
+}); // open chat
+
 openChatBtn.addEventListener('click', function () {
+  // Show chat / hide button
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
 
@@ -26160,27 +26164,44 @@ openChatBtn.addEventListener('click', function () {
       for (var c in x) {
         var n = x[c].name;
         window.Echo["private"](n).listen('MessageSend', function (e) {
-          messages.push({
+          console.log(e);
+          var m = {
             message: e.message.message,
             user: e.user
+          };
+          messages.push(m);
+
+          if (checkChatName == e.channelName) {
+            addSendMessage(m);
+          }
+
+          var listId = Array.from(chatChannels.firstElementChild.childNodes); // console.log(chatChannels.firstElementChild.childNodes.dataset.id == e.user.id);
+
+          listId.filter(function (elem) {
+            console.log(elem.dataset.id);
+            console.log(e.user.id);
+            elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : '';
           });
-          addSendMessage({
-            message: e.message.message,
-            user: e.user
-          });
+          console.log('listid');
+          console.log(listId); // console.log(chatChannels.firstElementChild.childNodes[e.user.id]);
+
+          if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
+            showNotification(m.message, m.user.username);
+          }
         });
       }
     });
     openChat = true;
   }
-});
+}); // close chat
+
 closeChat.addEventListener('click', function () {
   chatWindow.style.display = 'none';
   openChatBtn.style.display = 'inline-block';
-});
+}); // send message: create message / add message
 
 function sendMessage() {
-  //Emit a "messagesent" event including the user who sent the message along with the message content
+  // Create a newMessage object to send including user and channelname
   if (chatChannelName.textContent != 'Chat name' && chatChannelName != '') {
     newMessage = {
       user: user,
@@ -26188,17 +26209,18 @@ function sendMessage() {
       chatname: chatChannelName.textContent,
       to_user_id: chatChannelName.dataset.id
     };
-    addMessage(newMessage); //Clear the input
+    addMessage(newMessage); // Clear the input
 
     newMessage = "";
     sendMessageInp.value = '';
     return newMessage;
   }
-}
+} // get messages from database
+
 
 function fetchMessages(_x) {
   return _fetchMessages.apply(this, arguments);
-} //Receives the message that was emitted from the ChatForm Vue component
+} // Receives the message
 
 
 function _fetchMessages() {
@@ -26210,11 +26232,11 @@ function _fetchMessages() {
           case 0:
             data = {
               'idChannel': id
-            }; //GET request to the messages route in our Laravel server to fetch all the messages
+            }; // GET request to fetch all the messages
 
             _context2.next = 3;
             return axios.post('/fetchmessages', data).then(function (response) {
-              //Save the response in the messages array to display on the chat view
+              // Save the response in the messages array
               messages = response.data;
             });
 
@@ -26232,13 +26254,14 @@ function _fetchMessages() {
 }
 
 function addMessage(message) {
-  //Pushes it to the messages array
-  messages.push(message); //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
+  // Pushes it to the messages array
+  messages.push(message); // POST request to the messages to broadcast it.
 
   axios.post('/messages', message).then(function (response) {
     console.log(response.data);
   });
-}
+} // Append new message
+
 
 function addSendMessage(message) {
   var li = document.createElement('li');
@@ -26256,11 +26279,13 @@ function showMessages(message) {
   for (var m in message) {
     addSendMessage(message[m]);
   }
-}
+} // get broadcast channels
+
 
 function getChannels() {
   return _getChannels.apply(this, arguments);
-}
+} // append channels to chatChannels
+
 
 function _getChannels() {
   _getChannels = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
@@ -26298,14 +26323,91 @@ function showChannels(channel) {
     li.innerHTML = channel[c].name;
     li.dataset.id = channel[c].to_user_id;
     li.addEventListener('click', function (e) {
+      if (checkChatName != e.target.textContent) {
+        while (chatMessages.firstElementChild.hasChildNodes()) {
+          chatMessages.firstElementChild.removeChild(chatMessages.firstElementChild.firstChild);
+        }
+      }
+
       chatChannelName.innerHTML = e.target.textContent;
       chatChannelName.dataset.id = e.target.dataset.id;
+      checkChatName = e.target.textContent;
       fetchMessages(e.target.dataset.id);
     });
     ul.appendChild(li);
   }
 
   chatChannels.appendChild(ul);
+} // Check and create notifications
+
+
+function showNotification(_x2, _x3) {
+  return _showNotification.apply(this, arguments);
+}
+
+function _showNotification() {
+  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, user) {
+    var show, showError, granted, permission;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            show = function show() {
+              console.log('show notification: ');
+              console.log(message);
+              console.log(user);
+              var notification = new Notification("".concat(user), {
+                body: "".concat(message)
+              });
+              setTimeout(function () {
+                notification.close();
+              }, 10 * 1000);
+              notification.addEventListener('click', function () {
+                window.focus();
+              });
+            };
+
+            showError = function showError() {
+              // const error = 
+              alert('Notifications blocked'); // error.style.display = 'block';
+              // error.textContent = 'You blocked the notifications';
+            };
+
+            granted = false;
+
+            if (!(Notification.permission === 'granted')) {
+              _context4.next = 7;
+              break;
+            }
+
+            granted = true;
+            _context4.next = 12;
+            break;
+
+          case 7:
+            if (!(Notification.permission === 'denied')) {
+              _context4.next = 12;
+              break;
+            }
+
+            _context4.next = 10;
+            return Notification.requestPermission();
+
+          case 10:
+            permission = _context4.sent;
+            granted = permission === 'granted' ? true : false;
+
+          case 12:
+            granted ? show() : showError();
+
+          case 13:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, _callee4);
+  }));
+  return _showNotification.apply(this, arguments);
 }
 })();
 

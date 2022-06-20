@@ -2,7 +2,6 @@ const { default: axios } = require('axios');
 
 require('./bootstrap');
 
-
 const openChatBtn = document.getElementById('openChatBtn');
 const chatWindow = document.getElementById('chatWindow');
 const closeChat = document.getElementById('closeChat');
@@ -17,28 +16,33 @@ let channels = [];
 let newMessage = '';
 let openChat = false;
 let user = '';
+let checkChatName = '';
 
 window.addEventListener('load', () => {
   chatWindow.style.display = 'none'; 
   getUser();
 });
 
+// get username
 async function getUser () {
   await axios.post('/username').then(response => {
     user = response.data;
   });
 }
 
+// send message on click and on enter key
 sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
 
 sendMessageBtn.addEventListener('click', () => {
   sendMessage();
 });
 
+// open chat
 openChatBtn.addEventListener('click', () => {
+  // Show chat / hide button
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
-  
+
   if (!openChat) {
     let channel = getChannels();
     
@@ -47,26 +51,50 @@ openChatBtn.addEventListener('click', () => {
         let n = x[c].name;
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
-            messages.push({
+            console.log(e);
+            const m = { 
               message: e.message.message,
-              user: e.user
-            });
-            addSendMessage({message: e.message.message, user: e.user });
+              user: e.user,
+            }
+            messages.push(m);
+
+            if (checkChatName == e.channelName){
+              addSendMessage(m);
+            }
+
+            const listId = Array.from(chatChannels.firstElementChild.childNodes);
+              // console.log(chatChannels.firstElementChild.childNodes.dataset.id == e.user.id);
+              listId.filter(elem => {
+                console.log(elem.dataset.id);
+                console.log(e.user.id);
+                 elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : ''
+                });
+              console.log('listid');
+              console.log(listId);
+
+            // console.log(chatChannels.firstElementChild.childNodes[e.user.id]);
+            if ((m.user.username != user.username && document.visibilityState != 'visible') || 
+              (m.user.username != user.username && checkChatName != e.channelName)) {
+                
+              
+              showNotification(m.message, m.user.username);
+            }
           });
       }
     });
     openChat = true;
   }
-
 });
 
+// close chat
 closeChat.addEventListener('click', () => {
   chatWindow.style.display = 'none';
   openChatBtn.style.display = 'inline-block';
 })
 
+// send message: create message / add message
 function sendMessage() {
-  //Emit a "messagesent" event including the user who sent the message along with the message content
+  // Create a newMessage object to send including user and channelname
   if (chatChannelName.textContent != 'Chat name' && chatChannelName != '') {
     newMessage = {
         user: user,
@@ -76,54 +104,56 @@ function sendMessage() {
     }
 
     addMessage(newMessage);
-    //Clear the input
+    // Clear the input
     newMessage = "";
     sendMessageInp.value = '';
     return newMessage;
   }
 }
 
+// get messages from database
 async function fetchMessages(id) {
   let data = {'idChannel': id};
-  //GET request to the messages route in our Laravel server to fetch all the messages
+  // GET request to fetch all the messages
   await axios.post('/fetchmessages', data).then(response => {
-    //Save the response in the messages array to display on the chat view
+    // Save the response in the messages array
     messages = response.data;
   });
  
   showMessages(messages);
 }
 
-//Receives the message that was emitted from the ChatForm Vue component
+// Receives the message
 function addMessage(message) {
-  //Pushes it to the messages array
+  // Pushes it to the messages array
   messages.push(message);
   
-  //POST request to the messages route with the message data in order for our Laravel server to broadcast it.
+  // POST request to the messages to broadcast it.
   axios.post('/messages', message).then(response => {
     console.log(response.data);
   });
 }
 
+// Append new message
 function addSendMessage(message) {
-  let li = document.createElement('li');
-  let strong = document.createElement('strong');
-  let p = document.createElement('p');
-  strong.innerHTML = message.user.username;
-  p.innerHTML = message.message;
-  li.appendChild(strong);
-  li.appendChild(p);
-  chatMessages.firstElementChild.appendChild(li);
-  chatMessages.scrollTop = 10000;
+    let li = document.createElement('li');
+    let strong = document.createElement('strong');
+    let p = document.createElement('p');
+    strong.innerHTML = message.user.username;
+    p.innerHTML = message.message;
+    li.appendChild(strong);
+    li.appendChild(p);
+    chatMessages.firstElementChild.appendChild(li);
+    chatMessages.scrollTop = 10000;
 }
 
 function showMessages(message) {
   for (const m in message) {
     addSendMessage(message[m]);
-    
   }
 }
 
+// get broadcast channels
 async function getChannels() {
   let res = await axios.get('/channels').then(response => {
     channels = response.data;
@@ -133,6 +163,7 @@ async function getChannels() {
   return res;
 }
 
+// append channels to chatChannels
 function showChannels(channel) {
   let ul = document.createElement('ul');
   for (const c in channel) {
@@ -140,8 +171,15 @@ function showChannels(channel) {
     li.innerHTML = channel[c].name;
     li.dataset.id = channel[c].to_user_id;
     li.addEventListener('click', (e) => {
+      if (checkChatName != e.target.textContent) {
+        while (chatMessages.firstElementChild.hasChildNodes()){
+          chatMessages.firstElementChild.removeChild(chatMessages.firstElementChild.firstChild);
+        }
+      }
+
       chatChannelName.innerHTML = e.target.textContent;
       chatChannelName.dataset.id = e.target.dataset.id;
+      checkChatName = e.target.textContent;
       fetchMessages(e.target.dataset.id);
     });
     ul.appendChild(li);
@@ -149,3 +187,41 @@ function showChannels(channel) {
   chatChannels.appendChild(ul);
 }
 
+// Check and create notifications
+async function showNotification(message, user) {
+  const show = () => {
+    console.log('show notification: ');
+    console.log(message);
+    console.log(user);
+    const notification = new Notification(`${user}`, {
+      body: `${message}`,
+
+    });
+
+    setTimeout(()=> {
+      notification.close();
+    }, 10 * 1000);
+
+  notification.addEventListener('click', () => {
+    window.focus();
+  });
+}
+
+  const showError = () => {
+    // const error = 
+    alert('Notifications blocked');
+    // error.style.display = 'block';
+    // error.textContent = 'You blocked the notifications';
+  }
+
+  let granted = false;
+
+  if (Notification.permission === 'granted') {
+    granted = true;
+  } else if (Notification.permission === 'denied') {
+    let permission = await Notification.requestPermission();
+    granted = permission === 'granted' ? true : false;
+  }
+
+  granted ? show() : showError();
+}
