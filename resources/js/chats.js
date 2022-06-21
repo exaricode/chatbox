@@ -27,6 +27,7 @@ window.addEventListener('load', () => {
 async function getUser () {
   await axios.post('/username').then(response => {
     user = response.data;
+    console.log(user);
   });
 }
 
@@ -67,7 +68,7 @@ openChatBtn.addEventListener('click', () => {
                 const listId = Array.from(chatChannels.firstElementChild.childNodes);
                 
                 listId.filter(elem => {
-                   elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : ''
+                   elem.dataset.id == e.user.id ? elem.classList.add('unread') : ''
                   });
                 
               showNotification(m.message, m.user.username);
@@ -170,17 +171,19 @@ function showChannels(channel) {
     let li = document.createElement('li');
     li.innerHTML = channel[c].name;
     li.dataset.id = channel[c].to_user_id;
+
     li.addEventListener('click', (e) => {
+      e.target.classList.remove('unread');
       if (checkChatName != e.target.textContent) {
         while (chatMessages.firstElementChild.hasChildNodes()){
           chatMessages.firstElementChild.removeChild(chatMessages.firstElementChild.firstChild);
         }
+      
+        chatChannelName.innerHTML = e.target.textContent;
+        chatChannelName.dataset.id = e.target.dataset.id;
+        checkChatName = e.target.textContent;
+        fetchMessages(e.target.dataset.id);
       }
-
-      chatChannelName.innerHTML = e.target.textContent;
-      chatChannelName.dataset.id = e.target.dataset.id;
-      checkChatName = e.target.textContent;
-      fetchMessages(e.target.dataset.id);
     });
     ul.appendChild(li);
   }
@@ -188,29 +191,47 @@ function showChannels(channel) {
 }
 
 // Check and create notifications
-async function showNotification(message, user) {
+async function showNotification(message, username) {
   const show = () => {
-    console.log('show notification: ');
-    console.log(message);
-    console.log(user);
-    const notification = new Notification(`${user}`, {
+    const notification = new Notification(`${username}`, {
       body: `${message}`,
-
+      defaultPrevented: true,
+      requireInteraction: true
     });
+    
+    console.log('notification: ');
+    console.log(notification);
 
-    setTimeout(()=> {
-      notification.close();
-    }, 10 * 1000);
+    notification.addEventListener('show', (e) => {
+      e.preventDefault();
+
+      console.log('show');
+      console.log(e);
+      
+    });
+    
+    console.log(user.is_admin);
+    if (user.is_admin == 0) {
+      console.log('not admin');
+      setTimeout(()=> {
+        notification.close();
+      }, 10000);
+    } else {
+      console.log('admin');
+      setTimeout(() => {
+        notification.close();
+      }, 100000);
+    }
 
   notification.addEventListener('click', () => {
     window.focus();
   });
 
-  /* document.addEventListener('visibilitychange', () => {
+  document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       notification.close();
     }
-  }) */
+  });
 }
 
   const showError = () => {

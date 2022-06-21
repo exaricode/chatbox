@@ -38,7 +38,6 @@
     align-self: top;
 }
 
-
 #chatMenu {
     display: flex;
     position: sticky;
@@ -93,4 +92,8 @@
 .otherUser {
     background-color: rgba(151, 241, 151, 1);
     margin-inline-end: auto;
+}
+
+#chatChannels > ul > .unread {
+    border-color: yellow;
 }

@@ -25,7 +25,12 @@ class ChatsController extends Controller
     }
 
     public static function getUserName() {
-        return Auth::user();
+        $user = Auth::user();
+        $u = new stdClass();
+        $u->username = $user->username;
+        $u->id = $user->id;
+        $u->is_admin = $user->is_admin;
+        return $u;
     }
 
     public static function fetchMessages(Request $channel)

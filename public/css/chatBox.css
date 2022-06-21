@@ -39,7 +39,6 @@
     align-self: top;
 }
 
-
 #chatMenu {
     display: flex;
     position: -webkit-sticky;
@@ -102,4 +101,8 @@
     background-color: rgba(151, 241, 151, 1);
     -webkit-margin-end: auto;
             margin-inline-end: auto;
+}
+
+#chatChannels > ul > .unread {
+    border-color: yellow;
 }

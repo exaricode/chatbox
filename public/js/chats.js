@@ -26134,6 +26134,7 @@ function _getUser() {
             _context.next = 2;
             return axios.post('/username').then(function (response) {
               user = response.data;
+              console.log(user);
             });
 
           case 2:
@@ -26178,7 +26179,7 @@ openChatBtn.addEventListener('click', function () {
           if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
             var listId = Array.from(chatChannels.firstElementChild.childNodes);
             listId.filter(function (elem) {
-              elem.dataset.id == e.user.id ? elem.style.backgroundColor = 'yellow' : '';
+              elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
             });
             showNotification(m.message, m.user.username);
           }
@@ -26324,16 +26325,18 @@ function showChannels(channel) {
     li.innerHTML = channel[c].name;
     li.dataset.id = channel[c].to_user_id;
     li.addEventListener('click', function (e) {
+      e.target.classList.remove('unread');
+
       if (checkChatName != e.target.textContent) {
         while (chatMessages.firstElementChild.hasChildNodes()) {
           chatMessages.firstElementChild.removeChild(chatMessages.firstElementChild.firstChild);
         }
-      }
 
-      chatChannelName.innerHTML = e.target.textContent;
-      chatChannelName.dataset.id = e.target.dataset.id;
-      checkChatName = e.target.textContent;
-      fetchMessages(e.target.dataset.id);
+        chatChannelName.innerHTML = e.target.textContent;
+        chatChannelName.dataset.id = e.target.dataset.id;
+        checkChatName = e.target.textContent;
+        fetchMessages(e.target.dataset.id);
+      }
     });
     ul.appendChild(li);
   }
@@ -26347,30 +26350,47 @@ function showNotification(_x2, _x3) {
 }
 
 function _showNotification() {
-  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, user) {
+  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, username) {
     var show, showError, granted, permission;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
             show = function show() {
-              console.log('show notification: ');
-              console.log(message);
-              console.log(user);
-              var notification = new Notification("".concat(user), {
-                body: "".concat(message)
+              var notification = new Notification("".concat(username), {
+                body: "".concat(message),
+                defaultPrevented: true,
+                requireInteraction: true
               });
-              setTimeout(function () {
-                notification.close();
-              }, 10 * 1000);
+              console.log('notification: ');
+              console.log(notification);
+              notification.addEventListener('show', function (e) {
+                e.preventDefault();
+                console.log('show');
+                console.log(e);
+              });
+              console.log(user.is_admin);
+
+              if (user.is_admin == 0) {
+                console.log('not admin');
+                setTimeout(function () {
+                  notification.close();
+                }, 10000);
+              } else {
+                console.log('admin');
+                setTimeout(function () {
+                  notification.close();
+                }, 100000);
+              }
+
               notification.addEventListener('click', function () {
                 window.focus();
               });
-              /* document.addEventListener('visibilitychange', () => {
+              document.addEventListener('visibilitychange', function () {
                 if (document.visibilityState === 'visible') {
                   notification.close();
                 }
-              }) */
+              });
             };
 
             showError = function showError() {
