@@ -26359,29 +26359,42 @@ function _showNotification() {
             show = function show() {
               var notification = new Notification("".concat(username), {
                 body: "".concat(message),
-                defaultPrevented: true,
-                requireInteraction: true
+                requireInteraction: true,
+                data: 'test' //  defaultPrevented: true,
+
               });
+              /*  notification.defaultPrevented = true;
+               notification.requireInteraction = true; */
+
+              /* 
+              notification.onshow = function(e) {
+                e.target.defaultPrevented = true;
+                e.target.requireInteraction = true;
+                console.log(e);
+                console.log(e.target);
+                } */
+
               console.log('notification: ');
               console.log(notification);
-              notification.addEventListener('show', function (e) {
+              /* notification.addEventListener('show', (e) => {
                 e.preventDefault();
-                console.log('show');
+                 console.log('show');
                 console.log(e);
+                
               });
+              
               console.log(user.is_admin);
-
               if (user.is_admin == 0) {
                 console.log('not admin');
-                setTimeout(function () {
+                setTimeout(()=> {
                   notification.close();
-                }, 10000);
+                }, 10 * 1000); 
               } else {
                 console.log('admin');
-                setTimeout(function () {
+                setTimeout(() => {
                   notification.close();
-                }, 100000);
-              }
+                }, 100 * 1000);
+              } */
 
               notification.addEventListener('click', function () {
                 window.focus();
