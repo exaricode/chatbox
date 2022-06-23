@@ -9,6 +9,8 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSend;
+use Carbon\Carbon;
+use Carbon\CarbonTimeZone;
 use Illuminate\Support\Facades\Broadcast;
 use stdClass;
 
@@ -49,7 +51,8 @@ class ChatsController extends Controller
         $user = Auth::user();
         $message = $user->messages()->create([
             'message' => $request->input('message'),
-            'to_user_id' => (int) $request->to_user_id
+            'to_user_id' => (int) $request->to_user_id,
+            'created_at' => Carbon::now(CarbonTimeZone::instance('Europe/Amsterdam'))
         ]);
         $channelName = $request->chatname;
         broadcast(new MessageSend($user, $message, $channelName))->toOthers();

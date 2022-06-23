@@ -1,3 +1,5 @@
+"use strict";
+
 const { default: axios } = require('axios');
 
 require('./bootstrap');
@@ -31,19 +33,19 @@ async function getUser () {
   });
 }
 
-// send message on click and on enter key
-sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
-
-sendMessageBtn.addEventListener('click', () => {
-  sendMessage();
-});
-
 // open chat
 openChatBtn.addEventListener('click', () => {
   // Show chat / hide button
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
-
+  
+  // send message on click and on enter key
+  sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
+  
+  sendMessageBtn.addEventListener('click', () => {
+    sendMessage();
+  });
+  
   if (!openChat) {
     let channel = getChannels();
     
@@ -56,6 +58,7 @@ openChatBtn.addEventListener('click', () => {
             const m = { 
               message: e.message.message,
               user: e.user,
+              created_at: e.message.created_at
             }
             messages.push(m);
 
@@ -63,6 +66,7 @@ openChatBtn.addEventListener('click', () => {
               addSendMessage(m);
             }
 
+            console.log(document.visibilityState);
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
               (m.user.username != user.username && checkChatName != e.channelName)) {
                 const listId = Array.from(chatChannels.firstElementChild.childNodes);
@@ -94,9 +98,10 @@ function sendMessage() {
         user: user,
         message: sendMessageInp.value,
         chatname: chatChannelName.textContent,
-        to_user_id: chatChannelName.dataset.id
+        to_user_id: chatChannelName.dataset.id,
+        created_at: new Date()
     }
-
+    
     addMessage(newMessage);
     // Clear the input
     newMessage = "";
@@ -130,11 +135,21 @@ function addMessage(message) {
 
 // Append new message
 function addSendMessage(message) {
+    let time = new Date(message.created_at);
+
     let li = document.createElement('li');
     let strong = document.createElement('strong');
     let p = document.createElement('p');
+    let i = document.createElement('i');
     strong.innerHTML = message.user.username;
     p.innerHTML = message.message;
+    i.innerHTML = time.getHours() + ' : ' + 
+      (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes());
+
+    i.style.display = 'block'
+    i.style.textAlign = 'end';
+
+    p.appendChild(i);
 
     if (message.user.username == user.username) {
       li.classList.add('message', 'thisUser');
@@ -144,6 +159,7 @@ function addSendMessage(message) {
 
     li.appendChild(strong);
     li.appendChild(p);
+
     chatMessages.firstElementChild.appendChild(li);
     chatMessages.scrollTop = 10000;
 }
@@ -196,8 +212,8 @@ async function showNotification(message, username) {
     const notification = new Notification(`${username}`, {
       body: `${message}`,
       requireInteraction: true,
-      data: 'test'
-     //  defaultPrevented: true,
+      data: 'test',
+      defaultPrevented: true,
     });
     
    /*  notification.defaultPrevented = true;
