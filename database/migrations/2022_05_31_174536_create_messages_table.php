@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->unsigned();
             $table->text('message');
             $table->integer('to_user')->unsigned();
+            $table->integer('is_read')->default(0);
         });
     }
 

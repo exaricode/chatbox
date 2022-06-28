@@ -26115,6 +26115,7 @@ var chatChannelName = document.getElementById('chatChannelName');
 var messages = [];
 var channels = [];
 var newMessage = '';
+var firstOpenChat = false;
 var openChat = false;
 var user = '';
 var checkChatName = '';
@@ -26165,6 +26166,7 @@ function _getUser() {
 
 openChatBtn.addEventListener('click', function () {
   // Show chat / hide button
+  openChat = true;
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none'; // send message on click and on enter key
 
@@ -26175,40 +26177,63 @@ openChatBtn.addEventListener('click', function () {
     sendMessage();
   });
 
-  if (!openChat) {
-    var channel = getChannels();
-    channel.then(function (x) {
-      for (var c in x) {
-        var n = x[c].name;
-        window.Echo["private"](n).listen('MessageSend', function (e) {
-          var m = {
-            message: e.message.message,
-            user: e.user,
-            created_at: e.message.created_at
-          };
-          messages.push(m);
-
-          if (checkChatName == e.channelName) {
-            addSendMessage(m);
-          }
-
-          console.log(document.visibilityState);
-
-          if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
-            var listId = Array.from(chatChannels.firstElementChild.childNodes);
-            listId.filter(function (elem) {
-              elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
-            });
-            showNotification(m.message, m.user.username);
-          }
-        });
-      }
-    });
-    openChat = true;
+  if (!firstOpenChat) {
+    firstOpenChat = true;
+    initChannels();
   }
-}); // close chat
+}); // setup broadcast channels and echo listener first time chat is opened
+
+function initChannels() {
+  var channel = getChannels();
+  var readStatus = {
+    status: '0'
+  };
+  channel.then(function (x) {
+    for (var c in x) {
+      var n = x[c].name;
+      window.Echo["private"](n).listen('MessageSend', function (e) {
+        console.log(e);
+        var m = {
+          message: e.message.message,
+          user: e.user,
+          created_at: e.message.created_at,
+          is_read: e.message.is_read
+        };
+        messages.push(m);
+
+        if (checkChatName == e.channelName) {
+          addSendMessage(m);
+        }
+        /* if (m.is_read !== 0) {
+          axios.post('/isread', m);
+        } */
+
+
+        if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
+          var listId = Array.from(chatChannels.firstElementChild.childNodes);
+          listId.filter(function (elem) {
+            elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
+          });
+          showNotification(m.message, m.user.username);
+        }
+
+        readStatus.status = openChat && firstOpenChat ? '2' : '1';
+      }).whisper('isRead', {
+        isRead: axios.post('/isread', readStatus)
+      }).listenForWhisper('isRead', function (e) {
+        console.log('listen for is read');
+        console.log(e);
+        console.log(e.isRead);
+      });
+    }
+  });
+}
+
+function isRead() {} // close chat
+
 
 closeChat.addEventListener('click', function () {
+  openChat = false;
   chatWindow.style.display = 'none';
   openChatBtn.style.display = 'inline-block';
 }); // send message: create message / add message
@@ -26221,7 +26246,8 @@ function sendMessage() {
       message: sendMessageInp.value,
       chatname: chatChannelName.textContent,
       to_user_id: chatChannelName.dataset.id,
-      created_at: new Date()
+      created_at: new Date(),
+      is_read: 0
     };
     addMessage(newMessage); // Clear the input
 
@@ -26288,6 +26314,17 @@ function addSendMessage(message) {
   i.innerHTML = time.getHours() + ' : ' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes());
   i.style.display = 'block';
   i.style.textAlign = 'end';
+  p.appendChild(i);
+  i = document.createElement('i'); // TODO: add svg
+
+  i.innerHTML = 'vv';
+  /* add class based on messages.is_read
+  *    if 0 not received
+  *     if 1 received, not read
+  *     if 2 received and read
+  */
+
+  message.is_read === 0 ? i.classList.add('notReceived') : message.is_read === 1 ? i.classList.add('received') : message.is_read === 2 ? i.classList.add('read') : '';
   p.appendChild(i);
 
   if (message.user.username == user.username) {

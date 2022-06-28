@@ -52,11 +52,18 @@ class ChatsController extends Controller
         $message = $user->messages()->create([
             'message' => $request->input('message'),
             'to_user_id' => (int) $request->to_user_id,
-            'created_at' => Carbon::now(CarbonTimeZone::instance('Europe/Amsterdam'))
+            'created_at' => Carbon::now(CarbonTimeZone::instance('Europe/Amsterdam')),
+            'is_read' => (int) $request->is_read
         ]);
         $channelName = $request->chatname;
         broadcast(new MessageSend($user, $message, $channelName))->toOthers();
         return ['status' => 'Message Sent!'];
+    }
+
+    public static function isReadStatus(Request $request) {
+        Message::where('id', $request->id)->update(['is_read' => (int) $request->is_read]);
+        return Message::where('id', $request->id);
+
     }
 
     public static function getChannels() {

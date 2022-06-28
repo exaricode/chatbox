@@ -97,3 +97,15 @@
 #chatChannels > ul > .unread {
     border-color: yellow;
 }
+
+.notReceived {
+    color: transparent;
+}
+
+.received {
+    color: gray
+}
+
+.read {
+    color: blue;
+}

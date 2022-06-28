@@ -16,6 +16,7 @@ const chatChannelName = document.getElementById('chatChannelName');
 let messages = [];
 let channels = [];
 let newMessage = '';
+let firstOpenChat = false;
 let openChat = false;
 let user = '';
 let checkChatName = '';
@@ -54,6 +55,7 @@ async function getUser () {
 // open chat
 openChatBtn.addEventListener('click', () => {
   // Show chat / hide button
+  openChat = true;
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
   
@@ -64,18 +66,31 @@ openChatBtn.addEventListener('click', () => {
     sendMessage();
   });
   
-  if (!openChat) {
-    let channel = getChannels();
+  if (!firstOpenChat) {
+    firstOpenChat = true;
+    initChannels();
+  }
+});
+
+// setup broadcast channels and echo listener first time chat is opened
+function initChannels() {
+  let channel = getChannels();
+  let readStatus = {
+    status: '0'
+  };
     
     channel.then(x => {
       for(const c in x) {
         let n = x[c].name;
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
+            console.log(e);
+
             const m = { 
               message: e.message.message,
               user: e.user,
-              created_at: e.message.created_at
+              created_at: e.message.created_at,
+              is_read: e.message.is_read
             }
             messages.push(m);
 
@@ -83,7 +98,10 @@ openChatBtn.addEventListener('click', () => {
               addSendMessage(m);
             }
 
-            console.log(document.visibilityState);
+            /* if (m.is_read !== 0) {
+              axios.post('/isread', m);
+            } */
+
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
               (m.user.username != user.username && checkChatName != e.channelName)) {
                 const listId = Array.from(chatChannels.firstElementChild.childNodes);
@@ -93,16 +111,31 @@ openChatBtn.addEventListener('click', () => {
                   });
                 
               showNotification(m.message, m.user.username);
-            }
+            } 
+            
+
+            readStatus.status = openChat && firstOpenChat ? '2' : '1';
+            
+          })
+          .whisper('isRead', {
+            isRead: axios.post('/isread', readStatus)
+          })
+          .listenForWhisper('isRead', (e) => {
+            console.log('listen for is read');
+            console.log(e);
+            console.log(e.isRead);
           });
       }
     });
-    openChat = true;
-  }
-});
+}
+
+function isRead(){
+
+}
 
 // close chat
 closeChat.addEventListener('click', () => {
+  openChat = false;
   chatWindow.style.display = 'none';
   openChatBtn.style.display = 'inline-block';
 })
@@ -116,7 +149,8 @@ function sendMessage() {
         message: sendMessageInp.value,
         chatname: chatChannelName.textContent,
         to_user_id: chatChannelName.dataset.id,
-        created_at: new Date()
+        created_at: new Date(),
+        is_read: 0
     }
     
     addMessage(newMessage);
@@ -165,6 +199,20 @@ function addSendMessage(message) {
 
     i.style.display = 'block'
     i.style.textAlign = 'end';
+
+    p.appendChild(i);
+    i = document.createElement('i');
+    // TODO: add svg
+    i.innerHTML = 'vv';
+
+    /* add class based on messages.is_read
+    *    if 0 not received
+    *     if 1 received, not read
+    *     if 2 received and read
+    */
+    message.is_read === 0 ? i.classList.add('notReceived') :
+      message.is_read === 1 ? i.classList.add('received') :
+      message.is_read === 2 ? i.classList.add('read') : '';
 
     p.appendChild(i);
 
