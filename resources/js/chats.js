@@ -23,6 +23,24 @@ let checkChatName = '';
 window.addEventListener('load', () => {
   chatWindow.style.display = 'none'; 
   getUser();
+
+  if(!('serviceWorker' in navigator)) {
+    return
+  }
+
+  navigator.serviceWorker.register('notificationWorker.js')
+      .then(
+        reg => {
+          console.log(`registration ${reg}`);
+          console.log(reg);
+          console.log(navigator.serviceWorker);
+        },
+        err => {
+          console.error(`failed ${err}`);
+          console.error(err);
+        }
+      );
+  
 });
 
 // get username
@@ -54,7 +72,6 @@ openChatBtn.addEventListener('click', () => {
         let n = x[c].name;
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
-            console.log(e);
             const m = { 
               message: e.message.message,
               user: e.user,
@@ -208,57 +225,25 @@ function showChannels(channel) {
 
 // Check and create notifications
 async function showNotification(message, username) {
+  const options = {
+    includeUncontrolled: true,
+    type: 'window'
+  }
+
   const show = () => {
-    const notification = new Notification(`${username}`, {
-      body: `${message}`,
-      requireInteraction: true,
-      data: 'test',
-      defaultPrevented: true,
+    navigator.serviceWorker.ready.then(function(registration) {
+      console.log('show notification register');
+      console.log(registration);
+      registration.showNotification(`${username}`, {
+        body: `${message}`,
+        requireInteraction: true,
+        defaultPrevented: true,
+        onclick: self.focus(),
+        onshow: document.addEventListener('visibilitychange', () => {
+          // registration.Notification.close();
+        })
+      });
     });
-    
-   /*  notification.defaultPrevented = true;
-    notification.requireInteraction = true; */
-    /* 
-    notification.onshow = function(e) {
-      e.target.defaultPrevented = true;
-      e.target.requireInteraction = true;
-      console.log(e);
-      console.log(e.target);
-      } */
-    console.log('notification: ');
-    console.log(notification);
-
-
-    /* notification.addEventListener('show', (e) => {
-      e.preventDefault();
-
-      console.log('show');
-      console.log(e);
-      
-    });
-    
-    console.log(user.is_admin);
-    if (user.is_admin == 0) {
-      console.log('not admin');
-      setTimeout(()=> {
-        notification.close();
-      }, 10 * 1000); 
-    } else {
-      console.log('admin');
-      setTimeout(() => {
-        notification.close();
-      }, 100 * 1000);
-    } */
-
-  notification.addEventListener('click', () => {
-    window.focus();
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      notification.close();
-    }
-  });
 }
 
   const showError = () => {

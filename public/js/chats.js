@@ -26121,6 +26121,19 @@ var checkChatName = '';
 window.addEventListener('load', function () {
   chatWindow.style.display = 'none';
   getUser();
+
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  navigator.serviceWorker.register('notificationWorker.js').then(function (reg) {
+    console.log("registration ".concat(reg));
+    console.log(reg);
+    console.log(navigator.serviceWorker);
+  }, function (err) {
+    console.error("failed ".concat(err));
+    console.error(err);
+  });
 }); // get username
 
 function getUser() {
@@ -26168,7 +26181,6 @@ openChatBtn.addEventListener('click', function () {
       for (var c in x) {
         var n = x[c].name;
         window.Echo["private"](n).listen('MessageSend', function (e) {
-          console.log(e);
           var m = {
             message: e.message.message,
             user: e.user,
@@ -26364,58 +26376,28 @@ function showNotification(_x2, _x3) {
 
 function _showNotification() {
   _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, username) {
-    var show, showError, granted, permission;
+    var options, show, showError, granted, permission;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            options = {
+              includeUncontrolled: true,
+              type: 'window'
+            };
+
             show = function show() {
-              var notification = new Notification("".concat(username), {
-                body: "".concat(message),
-                requireInteraction: true,
-                data: 'test',
-                defaultPrevented: true
-              });
-              /*  notification.defaultPrevented = true;
-               notification.requireInteraction = true; */
-
-              /* 
-              notification.onshow = function(e) {
-                e.target.defaultPrevented = true;
-                e.target.requireInteraction = true;
-                console.log(e);
-                console.log(e.target);
-                } */
-
-              console.log('notification: ');
-              console.log(notification);
-              /* notification.addEventListener('show', (e) => {
-                e.preventDefault();
-                 console.log('show');
-                console.log(e);
-                
-              });
-              
-              console.log(user.is_admin);
-              if (user.is_admin == 0) {
-                console.log('not admin');
-                setTimeout(()=> {
-                  notification.close();
-                }, 10 * 1000); 
-              } else {
-                console.log('admin');
-                setTimeout(() => {
-                  notification.close();
-                }, 100 * 1000);
-              } */
-
-              notification.addEventListener('click', function () {
-                window.focus();
-              });
-              document.addEventListener('visibilitychange', function () {
-                if (document.visibilityState === 'visible') {
-                  notification.close();
-                }
+              navigator.serviceWorker.ready.then(function (registration) {
+                console.log('show notification register');
+                console.log(registration);
+                registration.showNotification("".concat(username), {
+                  body: "".concat(message),
+                  requireInteraction: true,
+                  defaultPrevented: true,
+                  onclick: self.focus(),
+                  onshow: document.addEventListener('visibilitychange', function () {// registration.Notification.close();
+                  })
+                });
               });
             };
 
@@ -26428,31 +26410,31 @@ function _showNotification() {
             granted = false;
 
             if (!(Notification.permission === 'granted')) {
-              _context4.next = 7;
+              _context4.next = 8;
               break;
             }
 
             granted = true;
-            _context4.next = 12;
+            _context4.next = 13;
             break;
 
-          case 7:
+          case 8:
             if (!(Notification.permission === 'denied')) {
-              _context4.next = 12;
+              _context4.next = 13;
               break;
             }
 
-            _context4.next = 10;
+            _context4.next = 11;
             return Notification.requestPermission();
 
-          case 10:
+          case 11:
             permission = _context4.sent;
             granted = permission === 'granted' ? true : false;
 
-          case 12:
+          case 13:
             granted ? show() : showError();
 
-          case 13:
+          case 14:
           case "end":
             return _context4.stop();
         }
