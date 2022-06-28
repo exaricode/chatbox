@@ -1,11 +1,12 @@
 self.addEventListener('install', e => {
-    console.log('installing')
-})
+    console.log('installing');
+    
+});
 
-self.addEventListener('active', e => {
+self.addEventListener('activate', e => {
     console.log('sw active');
-    console.log(ServiceWorkerGlobalScope.clients);
-})
+    // console.log(ServiceWorkerGlobalScope.clients);
+});
 
 const options = {
     includeUncontrolled: true,
@@ -14,21 +15,22 @@ const options = {
 
 self.addEventListener('notificationclick', e => {
     
-    console.log('notification click')
+    console.log('notification click');
+    // console.log(self);
     e.notification.close();
-    
-    
-    /* 
-    e.waitUntil(ServiceWorkerGlobalScope.clients.matchAll(options)
-        .then(clientList => {
+    // console.log(ServiceWorkerGlobalScope.clients);
+    /* e.waitUntil(clients.matchAll({
+        type: 'window'
+    })
+        .then(function(clientList) {
             console.log(`client length: ${clientList.length}`);
             let len = clientList.length;
-            for (let i = 0; i < len; ++i){
+            for (let i = 0; i < len; i++){
                 let client = clientList[i];
                 if (client.url === '/' && 'focus' in client) {
                     return client.focus();
                 }
             }
         })
-    ) */
+    ); */
 })

@@ -26126,6 +26126,7 @@ window.addEventListener('load', function () {
   navigator.serviceWorker.register('notificationWorker.js').then(function (reg) {
     console.log("registration ".concat(reg));
     console.log(reg);
+    console.log(navigator.serviceWorker);
   }, function (err) {
     console.error("failed ".concat(err));
     console.error(err);
@@ -26177,7 +26178,6 @@ openChatBtn.addEventListener('click', function () {
       for (var c in x) {
         var n = x[c].name;
         window.Echo["private"](n).listen('MessageSend', function (e) {
-          // console.log(e);
           var m = {
             message: e.message.message,
             user: e.user
@@ -26363,19 +26363,25 @@ function showNotification(_x2, _x3) {
 
 function _showNotification() {
   _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(message, username) {
-    var show, showError, granted, permission;
+    var options, show, showError, granted, permission;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            options = {
+              includeUncontrolled: true,
+              type: 'window'
+            };
+
             show = function show() {
               navigator.serviceWorker.ready.then(function (registration) {
+                console.log('show notification register');
                 console.log(registration);
                 registration.showNotification("".concat(username), {
                   body: "".concat(message),
                   requireInteraction: true,
                   defaultPrevented: true,
-                  // onclick: registration.windowFocus(),
+                  onclick: self.focus(),
                   onshow: document.addEventListener('visibilitychange', function () {// registration.Notification.close();
                   })
                 });
@@ -26391,31 +26397,31 @@ function _showNotification() {
             granted = false;
 
             if (!(Notification.permission === 'granted')) {
-              _context4.next = 7;
+              _context4.next = 8;
               break;
             }
 
             granted = true;
-            _context4.next = 12;
+            _context4.next = 13;
             break;
 
-          case 7:
+          case 8:
             if (!(Notification.permission === 'denied')) {
-              _context4.next = 12;
+              _context4.next = 13;
               break;
             }
 
-            _context4.next = 10;
+            _context4.next = 11;
             return Notification.requestPermission();
 
-          case 10:
+          case 11:
             permission = _context4.sent;
             granted = permission === 'granted' ? true : false;
 
-          case 12:
+          case 13:
             granted ? show() : showError();
 
-          case 13:
+          case 14:
           case "end":
             return _context4.stop();
         }

@@ -31,12 +31,14 @@ window.addEventListener('load', () => {
         reg => {
           console.log(`registration ${reg}`);
           console.log(reg);
+          console.log(navigator.serviceWorker);
         },
         err => {
           console.error(`failed ${err}`);
           console.error(err);
         }
       );
+  
 });
 
 // get username
@@ -68,7 +70,6 @@ openChatBtn.addEventListener('click', () => {
         let n = x[c].name;
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
-            // console.log(e);
             const m = { 
               message: e.message.message,
               user: e.user,
@@ -208,14 +209,20 @@ function showChannels(channel) {
 
 // Check and create notifications
 async function showNotification(message, username) {
+  const options = {
+    includeUncontrolled: true,
+    type: 'window'
+  }
+
   const show = () => {
     navigator.serviceWorker.ready.then(function(registration) {
+      console.log('show notification register');
       console.log(registration);
       registration.showNotification(`${username}`, {
         body: `${message}`,
         requireInteraction: true,
         defaultPrevented: true,
-        // onclick: registration.windowFocus(),
+        onclick: self.focus(),
         onshow: document.addEventListener('visibilitychange', () => {
           // registration.Notification.close();
         })
