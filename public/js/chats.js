@@ -26151,7 +26151,6 @@ function _getUser() {
             _context.next = 2;
             return axios.post('/username').then(function (response) {
               user = response.data;
-              console.log(user);
             });
 
           case 2:
@@ -26191,6 +26190,7 @@ function initChannels() {
   channel.then(function (x) {
     for (var c in x) {
       var n = x[c].name;
+      console.log(n);
       window.Echo["private"](n).listen('MessageSend', function (e) {
         console.log(e);
         var m = {
@@ -26204,10 +26204,12 @@ function initChannels() {
         if (checkChatName == e.channelName) {
           addSendMessage(m);
         }
+
+        m.is_read = openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0;
+        axios.post('/isread', e);
         /* if (m.is_read !== 0) {
           axios.post('/isread', m);
         } */
-
 
         if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
           var listId = Array.from(chatChannels.firstElementChild.childNodes);
@@ -26216,20 +26218,35 @@ function initChannels() {
           });
           showNotification(m.message, m.user.username);
         }
+        /* else {
+          //isRead(m, e.channelName);
+          window.Echo.private(e.channelName).whisper('isRead', {
+            is_read : openChat && firstOpenChat ? 2 :
+              !openChat && firstOpenChat ? 1 : 0 
+          });
+        } */
+
 
         readStatus.status = openChat && firstOpenChat ? '2' : '1';
-      }).whisper('isRead', {
-        isRead: axios.post('/isread', readStatus)
-      }).listenForWhisper('isRead', function (e) {
+      }).listen('isRead', function (e) {
         console.log('listen for is read');
         console.log(e);
         console.log(e.isRead);
       });
+      /* .whisper('isRead', {
+        isRead: axios.post('/isread', readStatus)
+      }) */
     }
   });
 }
 
-function isRead() {} // close chat
+function isRead(message, channel) {
+  console.log('isRead function');
+  console.log(channel);
+  window.Echo["private"](channel).whisper('isRead', {
+    is_read: openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0
+  });
+} // close chat
 
 
 closeChat.addEventListener('click', function () {

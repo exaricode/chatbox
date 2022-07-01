@@ -48,7 +48,6 @@ window.addEventListener('load', () => {
 async function getUser () {
   await axios.post('/username').then(response => {
     user = response.data;
-    console.log(user);
   });
 }
 
@@ -78,10 +77,11 @@ function initChannels() {
   let readStatus = {
     status: '0'
   };
-    
+
     channel.then(x => {
       for(const c in x) {
         let n = x[c].name;
+        console.log(n);
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
             console.log(e);
@@ -98,6 +98,10 @@ function initChannels() {
               addSendMessage(m);
             }
 
+            m.is_read = openChat && firstOpenChat ? 2 :
+                !openChat && firstOpenChat ? 1 : 0;
+
+            axios.post('/isread', e);
             /* if (m.is_read !== 0) {
               axios.post('/isread', m);
             } */
@@ -111,26 +115,36 @@ function initChannels() {
                   });
                 
               showNotification(m.message, m.user.username);
-            } 
-            
+            } /* else {
+                //isRead(m, e.channelName);
+                window.Echo.private(e.channelName).whisper('isRead', {
+                  is_read : openChat && firstOpenChat ? 2 :
+                    !openChat && firstOpenChat ? 1 : 0 
+                });
+            } */
 
             readStatus.status = openChat && firstOpenChat ? '2' : '1';
             
           })
-          .whisper('isRead', {
-            isRead: axios.post('/isread', readStatus)
-          })
-          .listenForWhisper('isRead', (e) => {
+          .listen('isRead', (e) => {
             console.log('listen for is read');
             console.log(e);
             console.log(e.isRead);
-          });
+        });
+          /* .whisper('isRead', {
+            isRead: axios.post('/isread', readStatus)
+          }) */
       }
     });
 }
 
-function isRead(){
-
+function isRead(message, channel){
+  console.log('isRead function');
+  console.log(channel);
+  window.Echo.private(channel).whisper('isRead', {
+    is_read : openChat && firstOpenChat ? 2 :
+      !openChat && firstOpenChat ? 1 : 0 
+  });
 }
 
 // close chat

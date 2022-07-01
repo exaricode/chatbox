@@ -9,6 +9,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSend;
+use App\Events\isRead;
 use Carbon\Carbon;
 use Carbon\CarbonTimeZone;
 use Illuminate\Support\Facades\Broadcast;
@@ -61,9 +62,18 @@ class ChatsController extends Controller
     }
 
     public static function isReadStatus(Request $request) {
-        Message::where('id', $request->id)->update(['is_read' => (int) $request->is_read]);
-        return Message::where('id', $request->id);
-
+        // dd($request->message['id']);
+        Message::where('id', $request->message['id'])->update(['is_read' => $request->message['is_read']]);
+       /* $message = [
+            'id' => $request->message->id,
+            'message' => $request->message->message,
+            'to_user_id' => (int) $request->message->to_user_id,
+            'user_id' => Auth::user()->id,
+            'is_read' => (int) $request->message->is_read
+        ]; */
+        
+       // broadcast(new isRead($request->message, $request->channelName));
+        return Message::where('id', $request->message['id']);
     }
 
     public static function getChannels() {
