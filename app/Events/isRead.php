@@ -23,11 +23,10 @@ class isRead implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($message, $channelName)
+    public function __construct($message)
     {
-
         $this->message = $message;
-        $this->channelName = $channelName;
+        $this->channelName = $message['channelName'];
     }
 
     public function broadcastWith() {

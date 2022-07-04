@@ -56,24 +56,32 @@ class ChatsController extends Controller
             'created_at' => Carbon::now(CarbonTimeZone::instance('Europe/Amsterdam')),
             'is_read' => (int) $request->is_read
         ]);
-        $channelName = $request->chatname;
+        $channelName = $request->channelName;
         broadcast(new MessageSend($user, $message, $channelName))->toOthers();
-        return ['status' => 'Message Sent!'];
+        return $message;
     }
 
     public static function isReadStatus(Request $request) {
-        // dd($request->message['id']);
-        Message::where('id', $request->message['id'])->update(['is_read' => $request->message['is_read']]);
-       /* $message = [
-            'id' => $request->message->id,
-            'message' => $request->message->message,
-            'to_user_id' => (int) $request->message->to_user_id,
+        // dd($request);
+        Message::where('id', $request->id)->update(['is_read' => $request->is_read]);
+        $message = [
+            'id' => $request->id,
+            'message' => $request->message,
+            'to_user_id' => (int) $request->to_user_id,
             'user_id' => Auth::user()->id,
-            'is_read' => (int) $request->message->is_read
-        ]; */
+            'is_read' => (int) $request->is_read,
+            'channelName' => $request->channelName
+        ];
         
-       // broadcast(new isRead($request->message, $request->channelName));
-        return Message::where('id', $request->message['id']);
+        broadcast(new isRead($message));
+
+        return Message::findOrFail($request->id);
+        // return Message::where('id', $request->id)->get();
+    }
+
+    public static function updateReadStatus(Request $request) {
+        Message::where('id', $request->id)->update(['is_read' => $request->is_read]);
+        return Message::findOrFail($request->id);
     }
 
     public static function getChannels() {

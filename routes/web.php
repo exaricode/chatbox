@@ -37,3 +37,4 @@ Route::get('/channels', [ChatsController::class, 'getChannels']);
 Route::post('/messages', [ChatsController::class, 'sendMessage']);
 Route::post('/username', [ChatsController::class, 'getUserName']);
 Route::post('/isread', [ChatsController::class, 'isReadStatus']);
+Route::post('/isreadupdate', [ChatsController::class, 'updateReadStatus']);
