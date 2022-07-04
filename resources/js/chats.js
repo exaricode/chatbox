@@ -96,26 +96,25 @@ function initChannels() {
 
             if (checkChatName == e.channelName){
               addSendMessage(m);
+            
+              console.log(`openchat 100: ${openChat}`);
+              if (user.id === e.message.to_user_id){
+                console.log('102: user id is true');
+                m.is_read = openChat && firstOpenChat ? 2 :
+                    !openChat && firstOpenChat ? 1 : 0;
+                  console.log(`106: ${m.is_read}`);
+                  // axios.post('/isread', m);
+                  if (m.is_read != 0) {
+                    (async function(){
+                      await axios.post('/isread', m)
+                      .then(response => {
+                        console.log('109: is read axios');
+                        console.log(response);
+                      });
+                    })();
+                  }
+              }
             }
-
-            console.log(`openchat 101: ${openChat}`);
-            if (user.id === e.message.to_user_id){
-              console.log('102: user id is true');
-              m.is_read = openChat && firstOpenChat ? 2 :
-                  !openChat && firstOpenChat ? 1 : 0;
-                console.log(`106: ${m.is_read}`);
-                // axios.post('/isread', m);
-                if (m.is_read != 0) {
-                  (async function(){
-                    await axios.post('/isread', m)
-                    .then(response => {
-                      console.log('109: is read axios');
-                      console.log(response);
-                    });
-                  })();
-                }
-            }
-
 
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
               (m.user.username != user.username && checkChatName != e.channelName)) {
@@ -129,7 +128,6 @@ function initChannels() {
             } 
 
             // readStatus.status = openChat && firstOpenChat ? '2' : '1';
-            
           })
           .listen('isRead', (e) => {
             console.log('133: listen is read');
@@ -148,7 +146,7 @@ function initChannels() {
                   (async function() {
                     await axios.post('/isreadupdate', e)
                       .then(response => {
-                        console.log('144: listen is read');
+                        console.log('149: listen is read');
                         console.log(response);
                       });
                   })();

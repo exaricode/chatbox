@@ -26204,34 +26204,33 @@ function initChannels() {
 
         if (checkChatName == e.channelName) {
           addSendMessage(m);
-        }
+          console.log("openchat 100: ".concat(openChat));
 
-        console.log("openchat 101: ".concat(openChat));
+          if (user.id === e.message.to_user_id) {
+            console.log('102: user id is true');
+            m.is_read = openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0;
+            console.log("106: ".concat(m.is_read)); // axios.post('/isread', m);
 
-        if (user.id === e.message.to_user_id) {
-          console.log('102: user id is true');
-          m.is_read = openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0;
-          console.log("106: ".concat(m.is_read)); // axios.post('/isread', m);
+            if (m.is_read != 0) {
+              _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+                return _regeneratorRuntime().wrap(function _callee$(_context) {
+                  while (1) {
+                    switch (_context.prev = _context.next) {
+                      case 0:
+                        _context.next = 2;
+                        return axios.post('/isread', m).then(function (response) {
+                          console.log('109: is read axios');
+                          console.log(response);
+                        });
 
-          if (m.is_read != 0) {
-            _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-              return _regeneratorRuntime().wrap(function _callee$(_context) {
-                while (1) {
-                  switch (_context.prev = _context.next) {
-                    case 0:
-                      _context.next = 2;
-                      return axios.post('/isread', m).then(function (response) {
-                        console.log('109: is read axios');
-                        console.log(response);
-                      });
-
-                    case 2:
-                    case "end":
-                      return _context.stop();
+                      case 2:
+                      case "end":
+                        return _context.stop();
+                    }
                   }
-                }
-              }, _callee);
-            }))();
+                }, _callee);
+              }))();
+            }
           }
         }
 
@@ -26262,7 +26261,7 @@ function initChannels() {
                     case 0:
                       _context2.next = 2;
                       return axios.post('/isreadupdate', e).then(function (response) {
-                        console.log('144: listen is read');
+                        console.log('149: listen is read');
                         console.log(response);
                       });
 
