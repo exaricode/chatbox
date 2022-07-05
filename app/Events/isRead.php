@@ -35,7 +35,8 @@ class isRead implements ShouldBroadcast
             'message' => $this->message['message'],
             'is_read' => $this->message['is_read'],
             'to_user' => $this->message['to_user_id'],
-            'user_id' => $this->message['user_id']
+            'user_id' => $this->message['user_id'],
+            'channelName' => $this->channelName
         ];
     }
 

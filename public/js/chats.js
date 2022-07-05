@@ -26099,6 +26099,14 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var _require = __webpack_require__(/*! axios */ "./node_modules/axios/index.js"),
     axios = _require["default"];
 
@@ -26119,6 +26127,44 @@ var firstOpenChat = false;
 var openChat = false;
 var user = '';
 var checkChatName = '';
+
+var Message = /*#__PURE__*/function () {
+  function Message(message) {
+    _classCallCheck(this, Message);
+
+    _defineProperty(this, "id", void 0);
+
+    _defineProperty(this, "message", void 0);
+
+    _defineProperty(this, "user", void 0);
+
+    _defineProperty(this, "created_at", void 0);
+
+    _defineProperty(this, "is_read", void 0);
+
+    _defineProperty(this, "channelName", void 0);
+
+    this.id = message.message.id;
+    this.message = message.message.message;
+    this.user = message.user;
+    this.created_at = message.message.created_at;
+    this.is_read = message.message.is_read;
+    this.channelName = message.channelName;
+  }
+
+  _createClass(Message, [{
+    key: "isRead",
+    get: function get() {
+      return this.is_read;
+    },
+    set: function set(num) {
+      this.is_read = num;
+    }
+  }]);
+
+  return Message;
+}();
+
 window.addEventListener('load', function () {
   chatWindow.style.display = 'none';
   getUser();
@@ -26143,22 +26189,22 @@ function getUser() {
 
 
 function _getUser() {
-  _getUser = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+  _getUser = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            _context3.next = 2;
+            _context.next = 2;
             return axios.post('/username').then(function (response) {
               user = response.data;
             });
 
           case 2:
           case "end":
-            return _context3.stop();
+            return _context.stop();
         }
       }
-    }, _callee3);
+    }, _callee);
   }));
   return _getUser.apply(this, arguments);
 }
@@ -26184,55 +26230,14 @@ openChatBtn.addEventListener('click', function () {
 
 function initChannels() {
   var channel = getChannels();
-  var readStatus = {
-    status: '0'
-  };
   channel.then(function (x) {
     for (var c in x) {
       var n = x[c].name;
       window.Echo["private"](n).listen('MessageSend', function (e) {
+        e.channelName = e.channelName == null ? checkChatName : e.channelName;
         console.log(e);
-        var m = {
-          id: e.message.id,
-          message: e.message.message,
-          user: e.user,
-          created_at: e.message.created_at,
-          is_read: e.message.is_read,
-          channelName: e.channelName
-        };
+        var m = new Message(e);
         messages.push(m);
-
-        if (checkChatName == e.channelName) {
-          addSendMessage(m);
-          console.log("openchat 100: ".concat(openChat));
-
-          if (user.id === e.message.to_user_id) {
-            console.log('102: user id is true');
-            m.is_read = openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0;
-            console.log("106: ".concat(m.is_read)); // axios.post('/isread', m);
-
-            if (m.is_read != 0) {
-              _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-                return _regeneratorRuntime().wrap(function _callee$(_context) {
-                  while (1) {
-                    switch (_context.prev = _context.next) {
-                      case 0:
-                        _context.next = 2;
-                        return axios.post('/isread', m).then(function (response) {
-                          console.log('109: is read axios');
-                          console.log(response);
-                        });
-
-                      case 2:
-                      case "end":
-                        return _context.stop();
-                    }
-                  }
-                }, _callee);
-              }))();
-            }
-          }
-        }
 
         if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
           var listId = Array.from(chatChannels.firstElementChild.childNodes);
@@ -26240,8 +26245,16 @@ function initChannels() {
             elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
           });
           showNotification(m.message, m.user.username);
-        } // readStatus.status = openChat && firstOpenChat ? '2' : '1';
+        }
 
+        if (checkChatName == e.channelName) {
+          if (user.id === e.message.to_user_id) {
+            m.isRead = openChat ? 2 : 1;
+            isRead(m);
+          }
+
+          addSendMessage(m);
+        }
       }).listen('isRead', function (e) {
         console.log('133: listen is read');
         console.log(e);
@@ -26250,45 +26263,47 @@ function initChannels() {
           return elem.dataset.message_id == e.id ? elem : '';
         });
 
-        if (m[0] != undefined && m != undefined && user.id == e.to_user) {
+        if (m[0] != undefined && m != undefined) {
           e.is_read == 2 ? m[0].lastElementChild.lastElementChild.classList.add('read') : e.is_read == 1 ? m[0].lastElementChild.lastElementChild.classList.add('received') : m[0].lastElementChild.lastElementChild.classList.add('notReceived');
+          e.channelName = e.channelName == null ? checkChatName : e.channelName;
 
-          if (e.is_read != 0) {
-            _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-              return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-                while (1) {
-                  switch (_context2.prev = _context2.next) {
-                    case 0:
-                      _context2.next = 2;
-                      return axios.post('/isreadupdate', e).then(function (response) {
-                        console.log('149: listen is read');
-                        console.log(response);
-                      });
+          if (e.is_read != 0 && !m[0].lastElementChild.lastElementChild.classList.contains('read')) {
+            var _m = new Message(e);
 
-                    case 2:
-                    case "end":
-                      return _context2.stop();
-                  }
-                }
-              }, _callee2);
-            }))();
+            isRead(_m);
           }
         }
       });
     }
   });
 }
-/* 
-function isRead(message, channel){
-  console.log('isRead function');
-  console.log(channel);
-  window.Echo.private(channel).whisper('isRead', {
-    is_read : openChat && firstOpenChat ? 2 :
-      !openChat && firstOpenChat ? 1 : 0 
-  });
-} */
-// close chat
 
+function isRead(_x) {
+  return _isRead.apply(this, arguments);
+} // close chat
+
+
+function _isRead() {
+  _isRead = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(message) {
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return axios.post('/isread', message).then(function (response) {
+              console.log('150: is read function');
+              console.log(response);
+            });
+
+          case 2:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _isRead.apply(this, arguments);
+}
 
 closeChat.addEventListener('click', function () {
   openChat = false;
@@ -26316,26 +26331,32 @@ function sendMessage() {
 } // get messages from database
 
 
-function fetchMessages(_x) {
+function fetchMessages(_x2) {
   return _fetchMessages.apply(this, arguments);
 } // Receives the message
 
 
 function _fetchMessages() {
-  _fetchMessages = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(id) {
+  _fetchMessages = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(id) {
     var data;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) {
-        switch (_context4.prev = _context4.next) {
+        switch (_context3.prev = _context3.next) {
           case 0:
             data = {
               'idChannel': id
             }; // GET request to fetch all the messages
 
-            _context4.next = 3;
+            _context3.next = 3;
             return axios.post('/fetchmessages', data).then(function (response) {
               // Save the response in the messages array
               messages = response.data;
+              messages.forEach(function (elem) {
+                if (elem.is_read != 2 && elem.to_user_id == user.id) {
+                  elem.is_read = 2;
+                  isRead(elem);
+                }
+              });
             });
 
           case 3:
@@ -26343,10 +26364,10 @@ function _fetchMessages() {
 
           case 4:
           case "end":
-            return _context4.stop();
+            return _context3.stop();
         }
       }
-    }, _callee4);
+    }, _callee3);
   }));
   return _fetchMessages.apply(this, arguments);
 }
@@ -26411,13 +26432,13 @@ function getChannels() {
 
 
 function _getChannels() {
-  _getChannels = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+  _getChannels = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
     var res;
-    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) {
-        switch (_context5.prev = _context5.next) {
+        switch (_context4.prev = _context4.next) {
           case 0:
-            _context5.next = 2;
+            _context4.next = 2;
             return axios.get('/channels').then(function (response) {
               channels = response.data;
               showChannels(channels);
@@ -26425,15 +26446,15 @@ function _getChannels() {
             });
 
           case 2:
-            res = _context5.sent;
-            return _context5.abrupt("return", res);
+            res = _context4.sent;
+            return _context4.abrupt("return", res);
 
           case 4:
           case "end":
-            return _context5.stop();
+            return _context4.stop();
         }
       }
-    }, _callee5);
+    }, _callee4);
   }));
   return _getChannels.apply(this, arguments);
 }
@@ -26466,16 +26487,16 @@ function showChannels(channel) {
 } // Check and create notifications
 
 
-function showNotification(_x2, _x3) {
+function showNotification(_x3, _x4) {
   return _showNotification.apply(this, arguments);
 }
 
 function _showNotification() {
-  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(message, username) {
+  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(message, username) {
     var options, show, showError, granted, permission;
-    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) {
-        switch (_context6.prev = _context6.next) {
+        switch (_context5.prev = _context5.next) {
           case 0:
             options = {
               includeUncontrolled: true,
@@ -26506,25 +26527,25 @@ function _showNotification() {
             granted = false;
 
             if (!(Notification.permission === 'granted')) {
-              _context6.next = 8;
+              _context5.next = 8;
               break;
             }
 
             granted = true;
-            _context6.next = 13;
+            _context5.next = 13;
             break;
 
           case 8:
             if (!(Notification.permission === 'denied')) {
-              _context6.next = 13;
+              _context5.next = 13;
               break;
             }
 
-            _context6.next = 11;
+            _context5.next = 11;
             return Notification.requestPermission();
 
           case 11:
-            permission = _context6.sent;
+            permission = _context5.sent;
             granted = permission === 'granted' ? true : false;
 
           case 13:
@@ -26532,10 +26553,10 @@ function _showNotification() {
 
           case 14:
           case "end":
-            return _context6.stop();
+            return _context5.stop();
         }
       }
-    }, _callee6);
+    }, _callee5);
   }));
   return _showNotification.apply(this, arguments);
 }
