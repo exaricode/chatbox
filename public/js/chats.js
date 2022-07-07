@@ -26174,11 +26174,11 @@ window.addEventListener('load', function () {
   }
 
   navigator.serviceWorker.register('notificationWorker.js').then(function (reg) {
-    console.log("registration ".concat(reg));
+    console.log("registration: ");
     console.log(reg);
     console.log(navigator.serviceWorker);
   }, function (err) {
-    console.error("failed ".concat(err));
+    console.error("failed: ");
     console.error(err);
   });
 }); // get username
@@ -26213,18 +26213,21 @@ openChatBtn.addEventListener('click', function () {
   // Show chat / hide button
   openChat = true;
   chatWindow.style.display = 'grid';
-  openChatBtn.style.display = 'none'; // send message on click and on enter key
-
-  sendMessageInp.addEventListener('keyup', function (e) {
-    return e.key == 'Enter' ? sendMessage() : '';
-  });
-  sendMessageBtn.addEventListener('click', function () {
-    sendMessage();
-  });
+  openChatBtn.style.display = 'none';
 
   if (!firstOpenChat) {
+    // send message on click and on enter key
+    sendMessageInp.addEventListener('keyup', function (e) {
+      return e.key == 'Enter' ? sendMessage() : '';
+    });
+    sendMessageBtn.addEventListener('click', function () {
+      sendMessage();
+    });
     firstOpenChat = true;
     initChannels();
+  } else if (messages.length > 0) {
+    // fetchMessages();
+    isRead(messages[messages.length - 1]);
   }
 }); // setup broadcast channels and echo listener first time chat is opened
 
@@ -26237,7 +26240,10 @@ function initChannels() {
         e.channelName = e.channelName == null ? checkChatName : e.channelName;
         console.log(e);
         var m = new Message(e);
-        messages.push(m);
+
+        if (e.message.message != null) {
+          messages.push(m);
+        }
 
         if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
           var listId = Array.from(chatChannels.firstElementChild.childNodes);
@@ -26254,23 +26260,46 @@ function initChannels() {
           }
 
           addSendMessage(m);
+        } else {
+          if (user.id === e.message.to_user_id) {
+            m.isRead = firstOpenChat ? 1 : 0;
+            isRead(m);
+          }
         }
       }).listen('isRead', function (e) {
         console.log('133: listen is read');
-        console.log(e);
-        var message_id = Array.from(chatMessages.firstElementChild.childNodes);
-        var m = message_id.filter(function (elem) {
-          return elem.dataset.message_id == e.id ? elem : '';
-        });
 
-        if (m[0] != undefined && m != undefined) {
-          e.is_read == 2 ? m[0].lastElementChild.lastElementChild.classList.add('read') : e.is_read == 1 ? m[0].lastElementChild.lastElementChild.classList.add('received') : m[0].lastElementChild.lastElementChild.classList.add('notReceived');
-          e.channelName = e.channelName == null ? checkChatName : e.channelName;
+        if (e.id != null) {
+          console.log(e);
 
-          if (e.is_read != 0 && !m[0].lastElementChild.lastElementChild.classList.contains('read')) {
-            var _m = new Message(e);
+          if (e.id != null && openChat && chatMessages.firstElementChild.hasChildNodes()) {
+            var message_id = Array.from(chatMessages.firstElementChild.childNodes);
+            var m = message_id.filter(function (elem) {
+              if (elem.dataset != undefined) {
+                return elem.dataset.message_id == e.id ? elem : undefined;
+              }
+            });
 
-            isRead(_m);
+            if (m[0] != undefined && m != undefined) {
+              e.is_read == 2 ? m[0].lastElementChild.lastElementChild.className = 'read' : e.is_read == 1 ? m[0].lastElementChild.lastElementChild.className = 'received' : m[0].lastElementChild.lastElementChild.className = 'notReceived';
+              e.channelName = e.channelName == null ? checkChatName : e.channelName;
+
+              if (e.is_read != 0 && !m[0].lastElementChild.lastElementChild.classList.contains('read')) {
+                var _m = new Message(e);
+
+                isRead(_m);
+              }
+            } else if (e.is_read === 0 && e.id != null && m != undefined) {
+              var _m2 = new Message(e);
+
+              _m2.isRead = 1;
+              isRead(_m2);
+            }
+          } else if (e.message != null && firstOpenChat == true) {
+            var _m3 = new Message(e);
+
+            _m3.isRead = 1;
+            isRead(_m3);
           }
         }
       });
@@ -26289,13 +26318,16 @@ function _isRead() {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.next = 2;
+            console.log('153: is read:');
+            console.log(message); // let res = '';
+
+            _context2.next = 4;
             return axios.post('/isread', message).then(function (response) {
               console.log('150: is read function');
-              console.log(response);
+              console.log(response); // res = response.data;
             });
 
-          case 2:
+          case 4:
           case "end":
             return _context2.stop();
         }
@@ -26354,6 +26386,7 @@ function _fetchMessages() {
               messages.forEach(function (elem) {
                 if (elem.is_read != 2 && elem.to_user_id == user.id) {
                   elem.is_read = 2;
+                  elem.channelName = chatChannelName.textContent;
                   isRead(elem);
                 }
               });
@@ -26374,11 +26407,13 @@ function _fetchMessages() {
 
 function addMessage(message) {
   // Pushes it to the messages array
-  messages.push(message); // POST request to the messages to broadcast it.
+  if (message.message != null) {
+    messages.push(message); // POST request to the messages to broadcast it.
 
-  axios.post('/messages', message).then(function (response) {
-    console.log(response.data);
-  });
+    axios.post('/messages', message).then(function (response) {
+      console.log(response.data);
+    });
+  }
 } // Append new message
 
 
@@ -26403,13 +26438,13 @@ function addSendMessage(message) {
   *     if 2 received and read
   */
 
-  message.is_read === 0 ? i.classList.add('notReceived') : message.is_read === 1 ? i.classList.add('received') : message.is_read === 2 ? i.classList.add('read') : '';
+  message.is_read === 0 ? i.className = 'notReceived' : message.is_read === 1 ? i.className = 'received' : message.is_read === 2 ? i.className = 'read' : '';
   p.appendChild(i);
 
   if (message.user.username == user.username) {
-    li.classList.add('message', 'thisUser');
+    li.className = 'message thisUser';
   } else {
-    li.classList.add('message', 'otherUser');
+    li.className = 'message otherUser';
   }
 
   li.dataset.message_id = message.id;

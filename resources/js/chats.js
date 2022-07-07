@@ -52,12 +52,12 @@ window.addEventListener('load', () => {
   navigator.serviceWorker.register('notificationWorker.js')
       .then(
         reg => {
-          console.log(`registration ${reg}`);
+          console.log(`registration: `);
           console.log(reg);
           console.log(navigator.serviceWorker);
         },
         err => {
-          console.error(`failed ${err}`);
+          console.error(`failed: `);
           console.error(err);
         }
       );
@@ -77,16 +77,19 @@ openChatBtn.addEventListener('click', () => {
   chatWindow.style.display = 'grid';
   openChatBtn.style.display = 'none';
   
+  if (!firstOpenChat) {
   // send message on click and on enter key
-  sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
-  
-  sendMessageBtn.addEventListener('click', () => {
-    sendMessage();
+    sendMessageInp.addEventListener('keyup', (e) => e.key == 'Enter' ? sendMessage() : '');
+    
+    sendMessageBtn.addEventListener('click', () => {
+      sendMessage();
   });
   
-  if (!firstOpenChat) {
     firstOpenChat = true;
     initChannels();
+  } else if (messages.length > 0) {
+      // fetchMessages();
+      isRead(messages[messages.length - 1]);
   }
 });
 
@@ -102,7 +105,9 @@ function initChannels() {
             e.channelName = e.channelName == null ? checkChatName : e.channelName;
             console.log(e);
             const m = new Message(e);
-            messages.push(m);
+            if (e.message.message != null){
+                messages.push(m);
+            }
 
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
             (m.user.username != user.username && checkChatName != e.channelName)) {
@@ -121,28 +126,47 @@ function initChannels() {
                 isRead(m);
               }
               addSendMessage(m);
+            } else {
+              if (user.id === e.message.to_user_id) {
+                m.isRead = firstOpenChat ? 1 : 0;
+                isRead(m);
+              }
             }
           })
           .listen('isRead', (e) => {
             console.log('133: listen is read');
-            console.log(e);
-            const message_id = Array.from(chatMessages.firstElementChild.childNodes);
-            const m = message_id.filter(elem => {
-              return elem.dataset.message_id == e.id ? elem : '';
-            });
+            if (e.id != null) {
+              console.log(e);
+              if (e.id != null && openChat && chatMessages.firstElementChild.hasChildNodes()) {
+                const message_id = Array.from(chatMessages.firstElementChild.childNodes);
+                const m = message_id.filter(elem => {
+                  if (elem.dataset != undefined){
+                    return elem.dataset.message_id == e.id ? elem : undefined;
+                  }
+                });
 
-            if (m[0] != undefined && m != undefined) {
-              e.is_read == 2 ? m[0].lastElementChild.lastElementChild.classList.add('read') :
-                e.is_read == 1 ? m[0].lastElementChild.lastElementChild.classList.add('received') :
-                m[0].lastElementChild.lastElementChild.classList.add('notReceived');
+                if (m[0] != undefined && m != undefined) {
+                  e.is_read == 2 ? m[0].lastElementChild.lastElementChild.className = 'read' :
+                    e.is_read == 1 ? m[0].lastElementChild.lastElementChild.className = 'received' :
+                    m[0].lastElementChild.lastElementChild.className = 'notReceived';
 
-                e.channelName = e.channelName == null ? checkChatName : e.channelName;
+                    e.channelName = e.channelName == null ? checkChatName : e.channelName;
 
-                if (e.is_read != 0 && !m[0].lastElementChild.lastElementChild.classList.contains('read')) {
-                  const m = new Message(e);
-                  
-                  isRead(m);
+                    if (e.is_read != 0 && !m[0].lastElementChild.lastElementChild.classList.contains('read')) {
+                      const m = new Message(e);
+                      
+                      isRead(m);
+                    }
+                } else if(e.is_read === 0 && e.id != null && m != undefined) {
+                    const m = new Message(e);
+                    m.isRead = 1;
+                    isRead(m);
                 }
+              } else if (e.message != null && firstOpenChat == true ) {
+                  const m = new Message(e);
+                  m.isRead = 1;
+                  isRead(m);
+              }
             }
         });
       }
@@ -150,11 +174,16 @@ function initChannels() {
 }
 
 async function isRead(message){
+  console.log('153: is read:');
+  console.log(message);
+  // let res = '';
   await axios.post('/isread', message)
     .then(response => {
       console.log('150: is read function');
       console.log(response);
+      // res = response.data;
     });
+    // return res;
 }
 
 // close chat
@@ -195,6 +224,7 @@ async function fetchMessages(id) {
     messages.forEach(elem => {
       if (elem.is_read != 2 && elem.to_user_id == user.id) {
         elem.is_read = 2;
+        elem.channelName = chatChannelName.textContent;
         isRead(elem);
       }
       
@@ -207,12 +237,14 @@ async function fetchMessages(id) {
 // Receives the message
 function addMessage(message) {
   // Pushes it to the messages array
-  messages.push(message);
-  
-  // POST request to the messages to broadcast it.
-  axios.post('/messages', message).then(response => {
-    console.log(response.data);
-  });
+  if (message.message != null) {
+    messages.push(message);
+    
+    // POST request to the messages to broadcast it.
+    axios.post('/messages', message).then(response => {
+      console.log(response.data);
+    });
+  }
 }
 
 // Append new message
@@ -240,16 +272,16 @@ function addSendMessage(message) {
     *     if 1 received, not read
     *     if 2 received and read
     */
-    message.is_read === 0 ? i.classList.add('notReceived') :
-      message.is_read === 1 ? i.classList.add('received') :
-      message.is_read === 2 ? i.classList.add('read') : '';
+    message.is_read === 0 ? i.className = 'notReceived' :
+      message.is_read === 1 ? i.className = 'received' :
+      message.is_read === 2 ? i.className = 'read' : '';
 
     p.appendChild(i);
 
     if (message.user.username == user.username) {
-      li.classList.add('message', 'thisUser');
+      li.className = 'message thisUser';
     } else {
-      li.classList.add('message', 'otherUser');
+      li.className = 'message otherUser';
     }
     
     li.dataset.message_id = message.id;
