@@ -97,17 +97,19 @@ function initChannels() {
                 messages.push(m);
             }
 
+            // add unread class to channel and show notification
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
             (m.user.username != user.username && checkChatName != e.channelName) || !openChat) {
               const listId = Array.from(chatChannels.firstElementChild.childNodes);
                 
-                listId.filter(elem => {
-                   elem.dataset.id == e.user.id ? elem.classList.add('unread') : ''
-                  });
+              listId.filter(elem => {
+                  elem.dataset.id == e.user.id ? elem.classList.add('unread') : ''
+                });
                 
-              showNotification(m.message, m.user.username, m.channelName);
+              showNotification(m.message, m.user.username);
             } 
 
+            // set the message read status
             if (checkChatName == e.channelName){
               if (user.id === e.message.to_user_id){
                 m.isRead = openChat ? 2 : 1;
@@ -160,6 +162,7 @@ function initChannels() {
     });
 }
 
+// update message read status
 async function isRead(message){
   if (message.isRead != 2 && message.channelName == checkChatName) {
     message.isRead = openChat && firstOpenChat ? 2 :
@@ -253,7 +256,9 @@ function addSendMessage(message) {
     p.appendChild(i);
     i = document.createElement('i');
     // TODO: add svg
-    i.innerHTML = 'vv';
+    
+    // i.innerHTML = 'vv';
+    i.appendChild(createSvg(message.is_read));
 
     /* add class based on messages.is_read
     *    if 0 not received
@@ -278,6 +283,25 @@ function addSendMessage(message) {
 
     chatMessages.firstElementChild.appendChild(li);
     chatMessages.scrollTop = 10000;
+}
+
+function createSvg(num){
+  let strokeColor = num == 2 ? 'blue' : num == 1 ? 'grey' : 'none';
+  const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+  iconSvg.setAttribute('fill', 'none');
+  iconSvg.setAttribute('viewbox', '0 0 24 24');
+  iconSvg.setAttribute('width', '20px');
+  iconSvg.setAttribute('height', '10px');
+  iconSvg.setAttribute('stroke', strokeColor);
+
+  iconPath.setAttribute('d', 
+    'M0 0 L5 10 L15 0 M5 0 L10 10 L20 0');
+  iconPath.setAttribute('stroke-width', 2);
+
+  iconSvg.appendChild(iconPath);
+  return iconSvg;
 }
 
 function showMessages(message) {
@@ -323,7 +347,7 @@ function showChannels(channel) {
 }
 
 // Check and create notifications
-async function showNotification(message, username, channelName) {
+async function showNotification(message, username) {
   const show = () => {
     const notification = new Notification(`${username}`, {
       body: `${message}`,

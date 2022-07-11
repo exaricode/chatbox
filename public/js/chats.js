@@ -26236,15 +26236,17 @@ function initChannels() {
 
         if (e.message.message != null) {
           messages.push(m);
-        }
+        } // add unread class to channel and show notification
+
 
         if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName || !openChat) {
           var listId = Array.from(chatChannels.firstElementChild.childNodes);
           listId.filter(function (elem) {
             elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
           });
-          showNotification(m.message, m.user.username, m.channelName);
-        }
+          showNotification(m.message, m.user.username);
+        } // set the message read status
+
 
         if (checkChatName == e.channelName) {
           if (user.id === e.message.to_user_id) {
@@ -26294,7 +26296,8 @@ function initChannels() {
       });
     }
   });
-}
+} // update message read status
+
 
 function isRead(_x) {
   return _isRead.apply(this, arguments);
@@ -26428,8 +26431,9 @@ function addSendMessage(message) {
   i.style.textAlign = 'end';
   p.appendChild(i);
   i = document.createElement('i'); // TODO: add svg
+  // i.innerHTML = 'vv';
 
-  i.innerHTML = 'vv';
+  i.appendChild(createSvg(message.is_read));
   /* add class based on messages.is_read
   *    if 0 not received
   *     if 1 received, not read
@@ -26450,6 +26454,21 @@ function addSendMessage(message) {
   li.appendChild(p);
   chatMessages.firstElementChild.appendChild(li);
   chatMessages.scrollTop = 10000;
+}
+
+function createSvg(num) {
+  var strokeColor = num == 2 ? 'blue' : num == 1 ? 'grey' : 'none';
+  var iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  var iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  iconSvg.setAttribute('fill', 'none');
+  iconSvg.setAttribute('viewbox', '0 0 24 24');
+  iconSvg.setAttribute('width', '20px');
+  iconSvg.setAttribute('height', '10px');
+  iconSvg.setAttribute('stroke', strokeColor);
+  iconPath.setAttribute('d', 'M0 0 L5 10 L15 0 M5 0 L10 10 L20 0');
+  iconPath.setAttribute('stroke-width', 2);
+  iconSvg.appendChild(iconPath);
+  return iconSvg;
 }
 
 function showMessages(message) {
@@ -26520,12 +26539,12 @@ function showChannels(channel) {
 } // Check and create notifications
 
 
-function showNotification(_x3, _x4, _x5) {
+function showNotification(_x3, _x4) {
   return _showNotification.apply(this, arguments);
 }
 
 function _showNotification() {
-  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(message, username, channelName) {
+  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(message, username) {
     var show, showError, granted, permission;
     return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) {
