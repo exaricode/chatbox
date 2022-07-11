@@ -26168,19 +26168,6 @@ var Message = /*#__PURE__*/function () {
 window.addEventListener('load', function () {
   chatWindow.style.display = 'none';
   getUser();
-
-  if (!('serviceWorker' in navigator)) {
-    return;
-  }
-
-  navigator.serviceWorker.register('notificationWorker.js').then(function (reg) {
-    console.log("registration: ");
-    console.log(reg);
-    console.log(navigator.serviceWorker);
-  }, function (err) {
-    console.error("failed: ");
-    console.error(err);
-  });
 }); // get username
 
 function getUser() {
@@ -26226,8 +26213,15 @@ openChatBtn.addEventListener('click', function () {
     firstOpenChat = true;
     initChannels();
   } else if (messages.length > 0) {
-    // fetchMessages();
-    isRead(messages[messages.length - 1]);
+    var len = messages.length - 1;
+
+    for (var i = len; i >= 0; i--) {
+      if (messages[i].is_read == 2) {
+        break;
+      }
+
+      isRead(messages[i]);
+    }
   }
 }); // setup broadcast channels and echo listener first time chat is opened
 
@@ -26238,19 +26232,18 @@ function initChannels() {
       var n = x[c].name;
       window.Echo["private"](n).listen('MessageSend', function (e) {
         e.channelName = e.channelName == null ? checkChatName : e.channelName;
-        console.log(e);
         var m = new Message(e);
 
         if (e.message.message != null) {
           messages.push(m);
         }
 
-        if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName) {
+        if (m.user.username != user.username && document.visibilityState != 'visible' || m.user.username != user.username && checkChatName != e.channelName || !openChat) {
           var listId = Array.from(chatChannels.firstElementChild.childNodes);
           listId.filter(function (elem) {
             elem.dataset.id == e.user.id ? elem.classList.add('unread') : '';
           });
-          showNotification(m.message, m.user.username);
+          showNotification(m.message, m.user.username, m.channelName);
         }
 
         if (checkChatName == e.channelName) {
@@ -26267,11 +26260,7 @@ function initChannels() {
           }
         }
       }).listen('isRead', function (e) {
-        console.log('133: listen is read');
-
         if (e.id != null) {
-          console.log(e);
-
           if (e.id != null && openChat && chatMessages.firstElementChild.hasChildNodes()) {
             var message_id = Array.from(chatMessages.firstElementChild.childNodes);
             var m = message_id.filter(function (elem) {
@@ -26314,20 +26303,31 @@ function isRead(_x) {
 
 function _isRead() {
   _isRead = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(message) {
+    var listId;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            console.log('153: is read:');
-            console.log(message); // let res = '';
+            if (message.isRead != 2 && message.channelName == checkChatName) {
+              message.isRead = openChat && firstOpenChat ? 2 : !openChat && firstOpenChat ? 1 : 0;
+            }
 
-            _context2.next = 4;
-            return axios.post('/isread', message).then(function (response) {
-              console.log('150: is read function');
-              console.log(response); // res = response.data;
-            });
+            if (message.isRead == 2 && message.user != undefined) {
+              listId = Array.from(chatChannels.firstElementChild.childNodes);
+              listId.filter(function (elem) {
+                elem.dataset.id == message.user.id ? elem.classList.remove('unread') : '';
+              });
+            }
 
-          case 4:
+            if (!(message.message != null && message.message != undefined)) {
+              _context2.next = 5;
+              break;
+            }
+
+            _context2.next = 5;
+            return axios.post('/isread', message);
+
+          case 5:
           case "end":
             return _context2.stop();
         }
@@ -26410,9 +26410,7 @@ function addMessage(message) {
   if (message.message != null) {
     messages.push(message); // POST request to the messages to broadcast it.
 
-    axios.post('/messages', message).then(function (response) {
-      console.log(response.data);
-    });
+    axios.post('/messages', message);
   }
 } // Append new message
 
@@ -26522,71 +26520,62 @@ function showChannels(channel) {
 } // Check and create notifications
 
 
-function showNotification(_x3, _x4) {
+function showNotification(_x3, _x4, _x5) {
   return _showNotification.apply(this, arguments);
 }
 
 function _showNotification() {
-  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(message, username) {
-    var options, show, showError, granted, permission;
+  _showNotification = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(message, username, channelName) {
+    var show, showError, granted, permission;
     return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
-            options = {
-              includeUncontrolled: true,
-              type: 'window'
-            };
-
             show = function show() {
-              navigator.serviceWorker.ready.then(function (registration) {
-                console.log('show notification register');
-                console.log(registration);
-                registration.showNotification("".concat(username), {
-                  body: "".concat(message),
-                  requireInteraction: true,
-                  defaultPrevented: true,
-                  onclick: self.focus(),
-                  onshow: document.addEventListener('visibilitychange', function () {// registration.Notification.close();
-                  })
-                });
+              var notification = new Notification("".concat(username), {
+                body: "".concat(message),
+                requireInteraction: true
+              });
+              setTimeout(function () {
+                notification.close();
+              }, 10 * 1000);
+              notification.addEventListener('click', function () {
+                window.focus();
               });
             };
 
             showError = function showError() {
-              // const error = 
-              alert('Notifications blocked'); // error.style.display = 'block';
-              // error.textContent = 'You blocked the notifications';
+              alert('Notifications blocked');
             };
 
             granted = false;
 
             if (!(Notification.permission === 'granted')) {
-              _context5.next = 8;
+              _context5.next = 7;
               break;
             }
 
             granted = true;
-            _context5.next = 13;
+            _context5.next = 12;
             break;
 
-          case 8:
+          case 7:
             if (!(Notification.permission === 'denied')) {
-              _context5.next = 13;
+              _context5.next = 12;
               break;
             }
 
-            _context5.next = 11;
+            _context5.next = 10;
             return Notification.requestPermission();
 
-          case 11:
+          case 10:
             permission = _context5.sent;
             granted = permission === 'granted' ? true : false;
 
-          case 13:
+          case 12:
             granted ? show() : showError();
 
-          case 14:
+          case 13:
           case "end":
             return _context5.stop();
         }

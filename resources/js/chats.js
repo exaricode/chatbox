@@ -44,23 +44,6 @@ class Message {
 window.addEventListener('load', () => {
   chatWindow.style.display = 'none'; 
   getUser();
-
-  if(!('serviceWorker' in navigator)) {
-    return
-  }
-
-  navigator.serviceWorker.register('notificationWorker.js')
-      .then(
-        reg => {
-          console.log(`registration: `);
-          console.log(reg);
-          console.log(navigator.serviceWorker);
-        },
-        err => {
-          console.error(`failed: `);
-          console.error(err);
-        }
-      );
 });
 
 // get username
@@ -88,8 +71,13 @@ openChatBtn.addEventListener('click', () => {
     firstOpenChat = true;
     initChannels();
   } else if (messages.length > 0) {
-      // fetchMessages();
-      isRead(messages[messages.length - 1]);
+      let len = messages.length - 1;
+      for (let i = len; i >= 0; i--) {
+        if (messages[i].is_read == 2) {
+          break;
+        }
+        isRead(messages[i]);
+      }
   }
 });
 
@@ -103,21 +91,21 @@ function initChannels() {
         window.Echo.private(n)
           .listen('MessageSend', (e) => {
             e.channelName = e.channelName == null ? checkChatName : e.channelName;
-            console.log(e);
+  
             const m = new Message(e);
             if (e.message.message != null){
                 messages.push(m);
             }
 
             if ((m.user.username != user.username && document.visibilityState != 'visible') || 
-            (m.user.username != user.username && checkChatName != e.channelName)) {
+            (m.user.username != user.username && checkChatName != e.channelName) || !openChat) {
               const listId = Array.from(chatChannels.firstElementChild.childNodes);
                 
                 listId.filter(elem => {
                    elem.dataset.id == e.user.id ? elem.classList.add('unread') : ''
                   });
                 
-              showNotification(m.message, m.user.username);
+              showNotification(m.message, m.user.username, m.channelName);
             } 
 
             if (checkChatName == e.channelName){
@@ -134,9 +122,7 @@ function initChannels() {
             }
           })
           .listen('isRead', (e) => {
-            console.log('133: listen is read');
             if (e.id != null) {
-              console.log(e);
               if (e.id != null && openChat && chatMessages.firstElementChild.hasChildNodes()) {
                 const message_id = Array.from(chatMessages.firstElementChild.childNodes);
                 const m = message_id.filter(elem => {
@@ -162,6 +148,7 @@ function initChannels() {
                     m.isRead = 1;
                     isRead(m);
                 }
+
               } else if (e.message != null && firstOpenChat == true ) {
                   const m = new Message(e);
                   m.isRead = 1;
@@ -174,16 +161,20 @@ function initChannels() {
 }
 
 async function isRead(message){
-  console.log('153: is read:');
-  console.log(message);
-  // let res = '';
-  await axios.post('/isread', message)
-    .then(response => {
-      console.log('150: is read function');
-      console.log(response);
-      // res = response.data;
-    });
-    // return res;
+  if (message.isRead != 2 && message.channelName == checkChatName) {
+    message.isRead = openChat && firstOpenChat ? 2 :
+                  !openChat && firstOpenChat ? 1 : 0;
+  }
+  if (message.isRead == 2 && message.user != undefined){
+    const listId = Array.from(chatChannels.firstElementChild.childNodes);
+      
+    listId.filter(elem => {
+      elem.dataset.id == message.user.id ? elem.classList.remove('unread') : ''
+      });
+  }
+  if (message.message != null && message.message != undefined ){
+    await axios.post('/isread', message);
+  }
 }
 
 // close chat
@@ -227,7 +218,6 @@ async function fetchMessages(id) {
         elem.channelName = chatChannelName.textContent;
         isRead(elem);
       }
-      
     });
   });
  
@@ -241,9 +231,7 @@ function addMessage(message) {
     messages.push(message);
     
     // POST request to the messages to broadcast it.
-    axios.post('/messages', message).then(response => {
-      console.log(response.data);
-    });
+    axios.post('/messages', message);
   }
 }
 
@@ -335,33 +323,24 @@ function showChannels(channel) {
 }
 
 // Check and create notifications
-async function showNotification(message, username) {
-  const options = {
-    includeUncontrolled: true,
-    type: 'window'
-  }
-
+async function showNotification(message, username, channelName) {
   const show = () => {
-    navigator.serviceWorker.ready.then(function(registration) {
-      console.log('show notification register');
-      console.log(registration);
-      registration.showNotification(`${username}`, {
-        body: `${message}`,
-        requireInteraction: true,
-        defaultPrevented: true,
-        onclick: self.focus(),
-        onshow: document.addEventListener('visibilitychange', () => {
-          // registration.Notification.close();
-        })
-      });
+    const notification = new Notification(`${username}`, {
+      body: `${message}`,
+      requireInteraction: true
     });
+
+    setTimeout(()=> {
+      notification.close();
+    }, 10 * 1000);
+
+  notification.addEventListener('click', () => {
+    window.focus();
+  });
 }
 
   const showError = () => {
-    // const error = 
     alert('Notifications blocked');
-    // error.style.display = 'block';
-    // error.textContent = 'You blocked the notifications';
   }
 
   let granted = false;
