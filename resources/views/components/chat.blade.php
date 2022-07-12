@@ -1,6 +1,6 @@
 <div id="chatWindow">
     <div id="chatMenu"><span id="chatChannelName">Chat name</span>
-        <button id="closeChat" class="chatBtn" >X</button>
+        <button id="closeChat" class="chatBtn">X</button>
     </div>
     <div id="chatScreen">
       <div id="chatChannels">
@@ -16,10 +16,8 @@
             id="sendMessageInp"
             type="text"
             name="message"
-            class=""
             placeholder="Type your message here..."
             value=""
-            @keyup.enter="sendMessage"
         />
         <!-- Button -->
         <span class="">

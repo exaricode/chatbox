@@ -1,6 +1,6 @@
 # Creating multiple channels
 
-## medient
+## user
 
 - User login
 - Load chat button
@@ -15,7 +15,7 @@
 - send notification to selected
 - update chatbox
 
-## begeleiding
+## admin
 
 - login
 - load chat button

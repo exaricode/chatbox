@@ -8,7 +8,7 @@
 
 ## Steps
 
-- Login / register for a [Pusher]() account. The Channels sandbox plan is completely free and will be more than ample to complete this sample project.
+- Login / register for a [Pusher](https://pusher.com/) account. The Channels sandbox plan is completely free and will be more than ample to complete this sample project.
 
 - Once you have signed up for a Pusher account you need to create a Channels app by clicking “Get Started” under Channels
 
