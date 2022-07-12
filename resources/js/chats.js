@@ -257,8 +257,10 @@ function addSendMessage(message) {
     i = document.createElement('i');
     // TODO: add svg
     
-    // i.innerHTML = 'vv';
-    i.appendChild(createSvg(message.is_read));
+    i.innerHTML = 'vv';
+    /* 
+      i.appendChild(createSvg(message.is_read));
+    */
 
     /* add class based on messages.is_read
     *    if 0 not received
