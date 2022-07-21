@@ -54,27 +54,5 @@ class DatabaseSeeder extends Seeder
                 'is_logged_in' => false
             ]);
         }
-/* 
-         \App\Models\Message::create([
-             'user_id' => 1,
-             'message' => 'hello tester1',
-             'to_user_id' => 2
-         ]);
-
-         \App\Models\Message::create([
-             'user_id' => 1,
-             'message' => 'hello tester2',
-             'to_user_id' => 3
-         ]);
-         \App\Models\Message::create([
-             'user_id' => 2,
-             'message' => 'hello admin.',
-             'to_user_id' => 1
-         ]);
-         \App\Models\Message::create([
-            'user_id' => 3,
-            'message' => 'hello admin.',
-            'to_user_id' => 1
-        ]); */
     }
 }

@@ -26430,8 +26430,9 @@ function addSendMessage(message) {
   i.style.display = 'block';
   i.style.textAlign = 'end';
   p.appendChild(i);
-  i = document.createElement('i'); // TODO: add svg
-  // i.innerHTML = 'vv';
+  // i = document.createElement('i'); 
+  // TODO: add svg
+  i.innerHTML = 'vv';
 
   i.appendChild(createSvg(message.is_read));
   /* add class based on messages.is_read
